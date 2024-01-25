@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div :class="['container_app', { dark__mode: darkMode }]">
     <header>
-      <HeaderIntruction />
+      <HeaderIntruction @darkMode="handleDarkMode" />
     </header>
     <main>
       <router-view />
@@ -18,9 +18,19 @@ import FooterComponent from '@/components/layout/footer/FooterComponent.vue'
 
 export default defineComponent({
   name: "MainApp",
+  data() {
+    return {
+      darkMode: false
+    }
+  },
   components: {
     HeaderIntruction,
     FooterComponent
+  },
+  methods: {
+    handleDarkMode(darkMode: any) {
+      this.darkMode = darkMode;
+    }
   },
   setup() {
     const debounce = (callback: (...args: any[]) => void, delay: number) => {
@@ -34,8 +44,8 @@ export default defineComponent({
       };
     }
 
-    const _ = (window as any) .ResizeObserver;
-    (window as any) .ResizeObserver = class ResizeObserver extends _ {
+    const _ = (window as any).ResizeObserver;
+    (window as any).ResizeObserver = class ResizeObserver extends _ {
       constructor(callback: (...args: any[]) => void) {
         callback = debounce(callback, 20);
         super(callback);
@@ -85,6 +95,61 @@ nav a {
   font-weight: bold;
   color: #2c3e50;
 }
+.container_app{
+  height: 100vh;
+}
+.dark__mode {
+  background-color: #191e22;
+  animation-name: gradually;
+  animation-duration: 0.3s;
+}
 
-nav a.router-link-exact-active {}
-</style>
+header {
+  height: 17%;
+}
+
+main {
+  height: 73%;
+}
+
+footer {
+  height: 10%
+}
+
+.dark__mode footer {
+  color: var(--color-text);
+}
+
+@keyframes gradually {
+  0% {
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.15;
+  }
+
+  30% {
+    opacity: 0.3;
+  }
+
+  45% {
+    opacity: 0.45;
+  }
+
+  60% {
+    opacity: 0.6;
+  }
+
+  75% {
+    opacity: 0.75;
+  }
+
+  90% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}</style>

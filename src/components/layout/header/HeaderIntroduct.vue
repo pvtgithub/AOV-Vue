@@ -100,6 +100,7 @@ nav a {
 
 .header__intruction__container {
     background-color: var(--color-background-header-intruction);
+    height: 110px;
 }
 
 .header__intruction__element__ul__menu {

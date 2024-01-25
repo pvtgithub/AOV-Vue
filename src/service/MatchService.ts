@@ -15,5 +15,8 @@ export default {
     getOneMatch(id : number, language : number){
         const resource = "/matchs"
         return Repository.get(`${resource}`+`/${id}`)
+    },
+    postMatch(data : any){
+        return Repository.post("/matchs", data)
     }
 }
