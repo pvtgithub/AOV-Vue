@@ -10,7 +10,7 @@ export default {
         }else if(language == 3){
             resource = "/matchs"
         }
-        return Repository.get(`${resource}`)
+        return Repository.get(`${resource}?_sort=date&_order=desc`)
     },
     getOneMatch(id : number, language : number){
         const resource = "/matchs"
@@ -18,5 +18,8 @@ export default {
     },
     postMatch(data : any){
         return Repository.post("/matchs", data)
+    },
+    deleteMatchById(id : number){
+        return Repository.delete(`/matchs/${id}`)
     }
 }

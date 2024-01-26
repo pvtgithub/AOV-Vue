@@ -22,13 +22,26 @@
             <el-tag v-if="scope.row.result == 1" :type="'success'" disable-transitions>{{ titleTable.win }}</el-tag>
             <el-tag v-if="scope.row.result == 2" :type="'error'" disable-transitions>{{ titleTable.lost }}</el-tag>
             <el-tag v-if="scope.row.result == 3" :type="''" disable-transitions>{{ titleTable.happening }}</el-tag>
-            <el-tag v-if="scope.row.result == 4" :type="'warning'" disable-transitions>{{ titleTable.not_happening }}</el-tag>
+            <el-tag v-if="scope.row.result == 4" :type="'warning'" disable-transitions>{{ titleTable.not_happening
+            }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column :label="titleTable.option" #default="scope">
-          <el-button @click="getMatchById(scope.row.id, 1)"><el-icon>
+          <el-button @click="getMatchById(scope.row.id, 1)">
+            <el-icon>
               <View />
-            </el-icon>Chi tiết</el-button>
+            </el-icon>{{ titleTable.detailButton }}
+          </el-button>
+          <el-popconfirm :title="titleTable.titleConfirmDelete" @confirm="deleteMatchById(scope.row.id)"
+            @cancel="cancelEvent">
+            <template #reference>
+              <el-button type="danger">
+                <el-icon>
+                  <Delete />
+                </el-icon>{{ titleTable.deleteButton }}
+              </el-button>
+            </template>
+          </el-popconfirm>
         </el-table-column>
       </el-table>
       <el-divider></el-divider>
@@ -39,7 +52,10 @@
         </el-pagination>
       </div>
       <el-divider></el-divider>
-
+      <div v-if="displayPhao" class="pyro">
+        <div class="before"></div>
+        <div class="after"></div>
+      </div>
       <MatchDetail ref="runHandle" :id="idDetail" />
     </el-col>
     <el-col :span="4"></el-col>
@@ -51,7 +67,7 @@ import { defineComponent } from 'vue'
 import MatchService from '@/service/MatchService'
 import ChampionService from '@/service/ChampionService'
 import { ref } from 'vue'
-import type { TableColumnCtx, TableInstance } from 'element-plus'
+import { ElLoading, type TableColumnCtx, type TableInstance } from 'element-plus'
 import { InfoFilled } from '@element-plus/icons-vue'
 import MatchDetail from '@/components/home/MatchDetail.vue'
 import store from '@/store/LanguageStore'
@@ -83,6 +99,7 @@ export default defineComponent({
     return {
       tableData: [],
       visible: false,
+      displayPhao: false,
       idDetail: 1,
       randomedPosition: [],
       randomedChampion: [],
@@ -108,9 +125,12 @@ export default defineComponent({
         "win": "Thắng",
         "lost": "Thua",
         "happening": "Đang đấu",
-        "not_happening": "Chưa diễn ra"
+        "not_happening": "Chưa diễn ra",
+        "detailButton": "Xem chi tiết",
+        "deleteButton": "Xóa trận đấu",
+        "titleConfirmDelete": "Bạn có muốn xóa trận đấu này?"
       },
-
+      exceptionChampion: []
     }
   },
   computed: {
@@ -149,40 +169,54 @@ export default defineComponent({
       this.idDetail = id;
       (this.$refs['runHandle'] as any).handleData(id, language)
     },
+    async deleteMatchById(id: number) {
+      await MatchService.deleteMatchById(id)
+      this.getDataMatch()
+    },
     startRandom() {
-      var matchRandom = { "id": 0, "date": "", "author": "", "result": 0, "rank_1": "0", "rank_2": "", "rank_3": "", "rank_4": "", "rank_5": "", "champion_top": "", "champion_mid": "", "champion_jungle": "", "champion_ad": "", "champion_sp": "" };
-      (this.randomedPosition as any) = this.randomPositon();
-      var today = new Date();
-      var dateCurent = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
-      matchRandom.id = Math.floor(Math.random() * 10000000)
-      matchRandom.date = dateCurent
-      matchRandom.author = "Admin"
-      matchRandom.result = 3
-      matchRandom.rank_1 = this.randomedPosition[0]
-      matchRandom.rank_2 = this.randomedPosition[1]
-      matchRandom.rank_3 = this.randomedPosition[2]
-      matchRandom.rank_4 = this.randomedPosition[3]
-      matchRandom.rank_5 = this.randomedPosition[4]
+      const loading = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+      })
+      setTimeout(() => {
+        loading.close()
+        var matchRandom = { "id": 0, "date": "", "author": "", "result": 0, "rank_1": "0", "rank_2": "", "rank_3": "", "rank_4": "", "rank_5": "", "champion_top": "", "champion_mid": "", "champion_jungle": "", "champion_ad": "", "champion_sp": "" };
+        (this.randomedPosition as any) = this.randomPositon();
+        var today = new Date();
+        var dateCurent = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear() + '|' + today.getHours() + 'h-' + today.getMinutes() + 'p-' + today.getSeconds() + 's';
+        matchRandom.id = Math.floor(Math.random() * 10000000)
+        matchRandom.date = dateCurent
+        matchRandom.author = "Admin"
+        matchRandom.result = 3
+        matchRandom.rank_1 = this.randomedPosition[0]
+        matchRandom.rank_2 = this.randomedPosition[1]
+        matchRandom.rank_3 = this.randomedPosition[2]
+        matchRandom.rank_4 = this.randomedPosition[3]
+        matchRandom.rank_5 = this.randomedPosition[4]
 
-      this.handleChampion(1, 1).then((res) => {
-        matchRandom.champion_top = res
-        this.handleChampion(2, 1).then((res) => {
-          matchRandom.champion_mid = res
-          this.handleChampion(3, 1).then((res) => {
-            matchRandom.champion_jungle = res
-            this.handleChampion(4, 1).then((res) => {
-              matchRandom.champion_ad = res
-              this.handleChampion(5, 1).then((res) => {
-                matchRandom.champion_sp = res
-                this.postMatch(matchRandom).then((res) => {
-                  this.getDataMatch()
-                  this.getMatchById(res.id, 1)
+        this.handleChampion(1, 1).then((res) => {
+          matchRandom.champion_top = res
+          this.handleChampion(2, 1).then((res) => {
+            matchRandom.champion_mid = res
+            this.handleChampion(3, 1).then((res) => {
+              matchRandom.champion_jungle = res
+              this.handleChampion(4, 1).then((res) => {
+                matchRandom.champion_ad = res
+                this.handleChampion(5, 1).then((res) => {
+                  matchRandom.champion_sp = res
+                  this.postMatch(matchRandom).then((res) => {
+                    this.getDataMatch()
+                    this.getMatchById(res.id, 1)
+                    store.state.displayPhao = true
+                  })
                 })
               })
             })
           })
         })
-      })
+      }, 2000)
+
     },
     cancelEvent() {
       console.log("cancel");
@@ -191,7 +225,7 @@ export default defineComponent({
       return await ChampionService.getChampionById(id, language);
     },
     randomPositon() {
-      const positions = ['Top', 'Mid', 'Jungle', 'ADC', 'Sp'];
+      const positions = ['Top', 'Mid', 'Rừng', 'Ad', 'Sp'];
       const randomizedPositions = [];
 
       while (positions.length > 0) {
@@ -213,6 +247,14 @@ export default defineComponent({
       }
       return randomizedChampion;
     },
+    getFiveChampionFirst(randomedChampion: any) {
+      var exceptionChampion: any[] = []
+      for (let i = 4; i >= 0; i--) {
+        const element = randomedChampion[i];
+        exceptionChampion.push(element)
+      }
+      return exceptionChampion
+    },
     handleChampion(idChampion: number, language: number): Promise<string> {
       return new Promise((resolve, reject) => {
         this.getChampion(idChampion, language).then((result) => {
@@ -221,26 +263,44 @@ export default defineComponent({
           switch (idChampion) {
             case 1:
               randomedChampion = this.randomChampion(result.data.top);
+              (this.exceptionChampion as any) = this.getFiveChampionFirst(randomedChampion);
               break;
             case 2:
-              randomedChampion = this.randomChampion(result.data.mid);
+              var filteredMid = result.data.mid.filter((itemB: { name: any }) => !this.exceptionChampion.some((itemA: { name: any }) => itemA.name === itemB.name));
+              randomedChampion = this.randomChampion(filteredMid);
+              var fiveChampionMid = this.getFiveChampionFirst(randomedChampion);
+              fiveChampionMid.forEach(element => (this.exceptionChampion as any).push(element));
               break;
             case 3:
-              randomedChampion = this.randomChampion(result.data.jungle);
+              var filteredJungle = result.data.jungle.filter((itemB: { name: any }) => !this.exceptionChampion.some((itemA: { name: any }) => itemA.name === itemB.name));
+              randomedChampion = this.randomChampion(filteredJungle);
+              var fiveChampionJungle = this.getFiveChampionFirst(randomedChampion);
+              fiveChampionJungle.forEach(element => (this.exceptionChampion as any).push(element));
               break;
             case 4:
-              randomedChampion = this.randomChampion(result.data.ad);
+              var filteredAd = result.data.ad.filter((itemB: { name: any }) => !this.exceptionChampion.some((itemA: { name: any }) => itemA.name === itemB.name));
+              randomedChampion = this.randomChampion(filteredAd);
+              var fiveChampionAd = this.getFiveChampionFirst(randomedChampion);
+              fiveChampionAd.forEach(element => (this.exceptionChampion as any).push(element));
               break;
             case 5:
-              randomedChampion = this.randomChampion(result.data.sp);
+              var filteredSp = result.data.sp.filter((itemB: { name: any }) => !this.exceptionChampion.some((itemA: { name: any }) => itemA.name === itemB.name));
+              randomedChampion = this.randomChampion(filteredSp);
+              var fiveChampionSp = this.getFiveChampionFirst(randomedChampion);
+              fiveChampionSp.forEach(element => (this.exceptionChampion as any).push(element));
               break;
             default:
               break;
           }
 
-          randomedChampion.forEach((element: any) => {
-            listChampion += element.name + ' ';
-          });
+          for (let index = 0; index < randomedChampion.length; index++) {
+            const element = randomedChampion[index];
+            if (index == randomedChampion.length - 1) {
+              listChampion += element.name;
+              break;
+            }
+            listChampion += element.name + ' | ';
+          }
 
           resolve(listChampion);
         });
@@ -251,8 +311,8 @@ export default defineComponent({
     },
     changeLanguage() {
       if (this.languageValue == 1) {
-        this.titleTable.date = "Ngày"
-        this.titleTable.author = "Tác giả"
+        this.titleTable.date = "Ngày quay"
+        this.titleTable.author = "Người quay"
         this.titleTable.state = "Trạng thái"
         this.titleTable.option = "Lựa chọn"
         this.titleTable.random = "Bắt đầu quay"
@@ -260,6 +320,9 @@ export default defineComponent({
         this.titleTable.lost = "Thua"
         this.titleTable.happening = "Đang đấu"
         this.titleTable.not_happening = "Chưa diễn ra"
+        this.titleTable.detailButton = "Xem chi tiết"
+        this.titleTable.deleteButton = "Xóa trận đấu"
+        this.titleTable.titleConfirmDelete = "Bạn có muốn xóa trận đấu này?"
       } else if (this.languageValue == 2) {
         this.titleTable.date = "Date"
         this.titleTable.author = "Author"
@@ -270,6 +333,9 @@ export default defineComponent({
         this.titleTable.lost = "Lost"
         this.titleTable.happening = "Happening"
         this.titleTable.not_happening = "Has't happening yet"
+        this.titleTable.detailButton = "Detail"
+        this.titleTable.deleteButton = "Delete"
+        this.titleTable.titleConfirmDelete = "Are you sure you want to delete match?"
       } else if (this.languageValue == 3) {
         this.titleTable.date = "日"
         this.titleTable.author = "著者"
@@ -280,17 +346,27 @@ export default defineComponent({
         this.titleTable.lost = "失う"
         this.titleTable.happening = "起こっている"
         this.titleTable.not_happening = "まだ起こっていない"
+        this.titleTable.detailButton = "詳細を見る"
+        this.titleTable.deleteButton = "一致を削除"
+        this.titleTable.titleConfirmDelete = "この一致を削除しますか?"
       }
     }
   },
   mounted() {
     this.languageValue = store.state.language
+    this.displayPhao = store.state.displayPhao
     this.changeLanguage()
     store.watch(
       state => state.language,
       newValue => {
         this.languageValue = newValue
         this.changeLanguage()
+      }
+    )
+    store.watch(
+      state => state.displayPhao,
+      newValue => {
+        this.displayPhao = newValue
       }
     )
     this.getDataMatch()
@@ -312,5 +388,292 @@ export default defineComponent({
 .dark__mode .el-table th.el-table__cell {
   background-color: var(--color-background-darkmode);
   color: var(--color-text);
+}
+
+/* phao hoa */
+.pyro {
+  position: fixed;
+  top: 200px;
+  left: 50%;
+  z-index: 2044;
+}
+
+.pyro>.before,
+.pyro>.after {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  pointer-events: none;
+  z-index: 99999999;
+  border-radius: 50%;
+  box-shadow: -120px -218.66667px blue, 248px -16.66667px #00ff84, 190px 16.33333px #002bff, -113px -308.66667px #ff009d, -109px -287.66667px #ffb300, -50px -313.66667px #ff006e, 226px -31.66667px #ff4000, 180px -351.66667px #ff00d0, -12px -338.66667px #00f6ff, 220px -388.66667px #99ff00, -69px -27.66667px #ff0400, -111px -339.66667px #6200ff, 155px -237.66667px #00ddff, -152px -380.66667px #00ffd0, -50px -37.66667px #00ffdd, -95px -175.66667px #a6ff00, -88px 10.33333px #0d00ff, 112px -309.66667px #005eff, 69px -415.66667px #ff00a6, 168px -100.66667px #ff004c, -244px 24.33333px #ff6600, 97px -325.66667px #ff0066, -211px -182.66667px #00ffa2, 236px -126.66667px #b700ff, 140px -196.66667px #9000ff, 125px -175.66667px #00bbff, 118px -381.66667px #ff002f, 144px -111.66667px #ffae00, 36px -78.66667px #f600ff, -63px -196.66667px #c800ff, -218px -227.66667px #d4ff00, -134px -377.66667px #ea00ff, -36px -412.66667px #ff00d4, 209px -106.66667px #00fff2, 91px -278.66667px #000dff, -22px -191.66667px #9dff00, 139px -392.66667px #a6ff00, 56px -2.66667px #0099ff, -156px -276.66667px #ea00ff, -163px -233.66667px #00fffb, -238px -346.66667px #00ff73, 62px -363.66667px #0088ff, 244px -170.66667px #0062ff, 224px -142.66667px #b300ff, 141px -208.66667px #9000ff, 211px -285.66667px #ff6600, 181px -128.66667px #1e00ff, 90px -123.66667px #c800ff, 189px 70.33333px #00ffc8, -18px -383.66667px #00ff33, 100px -6.66667px #ff008c;
+  -moz-animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
+  -webkit-animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
+  -o-animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
+  -ms-animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
+  animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
+}
+
+.pyro>.after {
+  -moz-animation-delay: 1.25s, 1.25s, 1.25s;
+  -webkit-animation-delay: 1.25s, 1.25s, 1.25s;
+  -o-animation-delay: 1.25s, 1.25s, 1.25s;
+  -ms-animation-delay: 1.25s, 1.25s, 1.25s;
+  animation-delay: 1.25s, 1.25s, 1.25s;
+  -moz-animation-duration: 1.25s, 1.25s, 6.25s;
+  -webkit-animation-duration: 1.25s, 1.25s, 6.25s;
+  -o-animation-duration: 1.25s, 1.25s, 6.25s;
+  -ms-animation-duration: 1.25s, 1.25s, 6.25s;
+  animation-duration: 1.25s, 1.25s, 6.25s;
+}
+
+@-webkit-keyframes bang {
+  from {
+    box-shadow: 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white;
+  }
+}
+
+@-moz-keyframes bang {
+  from {
+    box-shadow: 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white;
+  }
+}
+
+@-o-keyframes bang {
+  from {
+    box-shadow: 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white;
+  }
+}
+
+@-ms-keyframes bang {
+  from {
+    box-shadow: 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white;
+  }
+}
+
+@keyframes bang {
+  from {
+    box-shadow: 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white, 0 0 white;
+  }
+}
+
+@-webkit-keyframes gravity {
+  to {
+    transform: translateY(200px);
+    -moz-transform: translateY(200px);
+    -webkit-transform: translateY(200px);
+    -o-transform: translateY(200px);
+    -ms-transform: translateY(200px);
+    opacity: 0;
+  }
+}
+
+@-moz-keyframes gravity {
+  to {
+    transform: translateY(200px);
+    -moz-transform: translateY(200px);
+    -webkit-transform: translateY(200px);
+    -o-transform: translateY(200px);
+    -ms-transform: translateY(200px);
+    opacity: 0;
+  }
+}
+
+@-o-keyframes gravity {
+  to {
+    transform: translateY(200px);
+    -moz-transform: translateY(200px);
+    -webkit-transform: translateY(200px);
+    -o-transform: translateY(200px);
+    -ms-transform: translateY(200px);
+    opacity: 0;
+  }
+}
+
+@-ms-keyframes gravity {
+  to {
+    transform: translateY(200px);
+    -moz-transform: translateY(200px);
+    -webkit-transform: translateY(200px);
+    -o-transform: translateY(200px);
+    -ms-transform: translateY(200px);
+    opacity: 0;
+  }
+}
+
+@keyframes gravity {
+  to {
+    transform: translateY(200px);
+    -moz-transform: translateY(200px);
+    -webkit-transform: translateY(200px);
+    -o-transform: translateY(200px);
+    -ms-transform: translateY(200px);
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes position {
+
+  0%,
+  19.9% {
+    margin-top: 10%;
+    margin-left: 40%;
+  }
+
+  20%,
+  39.9% {
+    margin-top: 40%;
+    margin-left: 30%;
+  }
+
+  40%,
+  59.9% {
+    margin-top: 20%;
+    margin-left: 70%;
+  }
+
+  60%,
+  79.9% {
+    margin-top: 30%;
+    margin-left: 20%;
+  }
+
+  80%,
+  99.9% {
+    margin-top: 30%;
+    margin-left: 80%;
+  }
+}
+
+@-moz-keyframes position {
+
+  0%,
+  19.9% {
+    margin-top: 10%;
+    margin-left: 40%;
+  }
+
+  20%,
+  39.9% {
+    margin-top: 40%;
+    margin-left: 30%;
+  }
+
+  40%,
+  59.9% {
+    margin-top: 20%;
+    margin-left: 70%;
+  }
+
+  60%,
+  79.9% {
+    margin-top: 30%;
+    margin-left: 20%;
+  }
+
+  80%,
+  99.9% {
+    margin-top: 30%;
+    margin-left: 80%;
+  }
+}
+
+@-o-keyframes position {
+
+  0%,
+  19.9% {
+    margin-top: 10%;
+    margin-left: 40%;
+  }
+
+  20%,
+  39.9% {
+    margin-top: 40%;
+    margin-left: 30%;
+  }
+
+  40%,
+  59.9% {
+    margin-top: 20%;
+    margin-left: 70%;
+  }
+
+  60%,
+  79.9% {
+    margin-top: 30%;
+    margin-left: 20%;
+  }
+
+  80%,
+  99.9% {
+    margin-top: 30%;
+    margin-left: 80%;
+  }
+}
+
+@-ms-keyframes position {
+
+  0%,
+  19.9% {
+    margin-top: 10%;
+    margin-left: 40%;
+  }
+
+  20%,
+  39.9% {
+    margin-top: 40%;
+    margin-left: 30%;
+  }
+
+  40%,
+  59.9% {
+    margin-top: 20%;
+    margin-left: 70%;
+  }
+
+  60%,
+  79.9% {
+    margin-top: 30%;
+    margin-left: 20%;
+  }
+
+  80%,
+  99.9% {
+    margin-top: 30%;
+    margin-left: 80%;
+  }
+}
+
+@keyframes position {
+
+  0%,
+  19.9% {
+    margin-top: 10%;
+    margin-left: 40%;
+  }
+
+  20%,
+  39.9% {
+    margin-top: 40%;
+    margin-left: 30%;
+  }
+
+  40%,
+  59.9% {
+    margin-top: 20%;
+    margin-left: 70%;
+  }
+
+  60%,
+  79.9% {
+    margin-top: 30%;
+    margin-left: 20%;
+  }
+
+  80%,
+  99.9% {
+    margin-top: 30%;
+    margin-left: 80%;
+  }
 }
 </style>

@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const urlDomain = "http://localhost:3000"
+const urlDomain = "http://10.1.1.119:3000"
 const urlBase = `${urlDomain}`
 const token = ""
 

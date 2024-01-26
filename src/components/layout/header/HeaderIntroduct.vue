@@ -58,7 +58,7 @@ export default defineComponent({
     name: 'HeaderIntruction',
     data() {
         return {
-            headerVi: { "id": 1, "title": "CLB LQMB", "link": "/", "logo": "https://luvina.net/public/media//logo-luvina-2022-2.png" },
+            headerVi: { "id": 1, "title": "CLB LIÊN QUÂN", "link": "/", "logo": "https://luvina.net/public/media//logo-luvina-2022-2.png" },
             headerEn: { "id": 2, "title": "ARENA OF VALOR CLUB", "link": "/", "logo": "https://luvina.net/public/media//logo-luvina-2022-2.png" },
             headerJp: { "id": 3, "title": "モバイル連合クラブ", "link": "/", "logo": "https://luvina.net/public/media//logo-luvina-2022-2.png" },
             darkMode: false,
