@@ -2,17 +2,26 @@
   <el-row class="home__row__container">
     <el-col :span="4"></el-col>
     <el-col :span="16">
-      <el-popconfirm confirm-button-text="Yes" cancel-button-text="No" :icon="InfoFilled" icon-color="#626AEF"
-        title="Bắt đầu random tướng?" @confirm="startRandom" @cancel="cancelEvent">
-        <template #reference>
-          <el-button type="primary">{{ titleTable.random }}</el-button>
+      <el-button @click="dialogFormVisible = true" type="primary">
+        {{ titleTable.random }}
+      </el-button>
+
+      <el-dialog v-model="dialogFormVisible" :title="titleTable.nameAuthorTitle" width="500">
+        <el-input :placeholder="titleTable.nameAuthorPlace" v-model="nameAuthor" />
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button type="danger" @click="dialogFormVisible = false">Cancel</el-button>
+            <el-button type="primary" @click="startRandom()">
+              {{ titleTable.random }}
+            </el-button>
+          </span>
         </template>
-      </el-popconfirm>
+      </el-dialog>
       <el-table ref="tableRef" row-key="id" :data="displayData" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="220" />
+        <el-table-column prop="id" label="ID" width="170" />
         <el-table-column prop="date" :label="titleTable.date" sortable width="220" column-key="date" />
-        <el-table-column prop="author" :label="titleTable.author" width="220" />
-        <el-table-column prop="result" :label="titleTable.state" width="220" :filters="[
+        <el-table-column prop="author" :label="titleTable.author" width="170" />
+        <el-table-column prop="result" :label="titleTable.state" width="170" :filters="[
           { text: 'Thắng', value: 1 },
           { text: 'Thua', value: 2 },
           { text: 'Chưu diễn ra', value: 3 },
@@ -26,8 +35,14 @@
             }}</el-tag>
           </template>
         </el-table-column>
+        <el-table-column prop="changePosition" label="Đổi đường" width="170" >
+          <template #default="scope">
+            <el-tag v-if="scope.row.changePosition == true" :type="'success'" disable-transitions>Có đổi đường</el-tag>
+            <el-tag v-if="scope.row.changePosition == false" :type="'danger'" disable-transitions>Không đổi đường</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column :label="titleTable.option" #default="scope">
-          <el-button @click="getMatchById(scope.row.id, 1)">
+          <el-button @click="getMatchById(scope.row.id, 1, true)">
             <el-icon>
               <View />
             </el-icon>{{ titleTable.detailButton }}
@@ -56,7 +71,7 @@
         <div class="before"></div>
         <div class="after"></div>
       </div>
-      <MatchDetail ref="runHandle" :id="idDetail" />
+      <MatchDetail @getMatchAgain="getDataMatch()" ref="runHandle" :id="idDetail" />
     </el-col>
     <el-col :span="4"></el-col>
   </el-row>
@@ -67,8 +82,7 @@ import { defineComponent } from 'vue'
 import MatchService from '@/service/MatchService'
 import ChampionService from '@/service/ChampionService'
 import { ref } from 'vue'
-import { ElLoading, type TableColumnCtx, type TableInstance } from 'element-plus'
-import { InfoFilled } from '@element-plus/icons-vue'
+import { ElMessage, ElLoading, type TableColumnCtx, type TableInstance } from 'element-plus'
 import MatchDetail from '@/components/home/MatchDetail.vue'
 import store from '@/store/LanguageStore'
 
@@ -97,6 +111,7 @@ export default defineComponent({
   },
   data() {
     return {
+      dialogFormVisible: ref(false),
       tableData: [],
       visible: false,
       displayPhao: false,
@@ -114,6 +129,7 @@ export default defineComponent({
       pageSize: 10,
       total: 0,
       languageValue: 1,
+      nameAuthor: "",
       titleTable:
       {
         "id": 'ID',
@@ -121,16 +137,18 @@ export default defineComponent({
         "author": "Tác giả",
         "state": "Trạng thái",
         "option": "Lựa chọn",
-        "random": "Bắt đầu quay",
+        "random": "Bắt đầu quay tướng",
         "win": "Thắng",
         "lost": "Thua",
         "happening": "Đang đấu",
         "not_happening": "Chưa diễn ra",
         "detailButton": "Xem chi tiết",
         "deleteButton": "Xóa trận đấu",
-        "titleConfirmDelete": "Bạn có muốn xóa trận đấu này?"
+        "titleConfirmDelete": "Bạn có muốn xóa trận đấu này?",
+        "nameAuthorTitle": "Bắt đầu random?",
+        "nameAuthorPlace": "Nhập tên người quay:  "
       },
-      exceptionChampion: []
+      exceptionChampion: [],
     }
   },
   computed: {
@@ -165,15 +183,24 @@ export default defineComponent({
       const property = column['property']
       return (row as any)[property] === value
     },
-    getMatchById(id: number, language: number) {
+    getMatchById(id: number, language: number, displayListChampion: boolean) {
       this.idDetail = id;
-      (this.$refs['runHandle'] as any).handleData(id, language)
+      (this.$refs['runHandle'] as any).handleData(id, language, displayListChampion)
     },
     async deleteMatchById(id: number) {
       await MatchService.deleteMatchById(id)
       this.getDataMatch()
     },
     startRandom() {
+      if (this.nameAuthor == "") {
+        ElMessage({
+          showClose: true,
+          message: 'Không nhập hoặc tên không đúng định dạng!',
+          type: 'error',
+        })
+        this.dialogFormVisible = false
+        return
+      }
       const loading = ElLoading.service({
         lock: true,
         text: 'Loading',
@@ -181,13 +208,14 @@ export default defineComponent({
       })
       setTimeout(() => {
         loading.close()
-        var matchRandom = { "id": 0, "date": "", "author": "", "result": 0, "rank_1": "0", "rank_2": "", "rank_3": "", "rank_4": "", "rank_5": "", "champion_top": "", "champion_mid": "", "champion_jungle": "", "champion_ad": "", "champion_sp": "" };
+        var matchRandom = { "id": 0, "date": "", "author": "", "changePosition": false, "result": 0, "rank_1": "0", "rank_2": "", "rank_3": "", "rank_4": "", "rank_5": "", "champion_top": "", "champion_mid": "", "champion_jungle": "", "champion_ad": "", "champion_sp": "" };
         (this.randomedPosition as any) = this.randomPositon();
         var today = new Date();
         var dateCurent = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear() + '|' + today.getHours() + 'h-' + today.getMinutes() + 'p-' + today.getSeconds() + 's';
         matchRandom.id = Math.floor(Math.random() * 10000000)
         matchRandom.date = dateCurent
-        matchRandom.author = "Admin"
+        matchRandom.author = this.nameAuthor
+        matchRandom.changePosition = false
         matchRandom.result = 3
         matchRandom.rank_1 = this.randomedPosition[0]
         matchRandom.rank_2 = this.randomedPosition[1]
@@ -207,7 +235,9 @@ export default defineComponent({
                   matchRandom.champion_sp = res
                   this.postMatch(matchRandom).then((res) => {
                     this.getDataMatch()
-                    this.getMatchById(res.id, 1)
+                    this.getMatchById(res.id, 1, false)
+                    this.nameAuthor = ""
+                    this.dialogFormVisible = false
                     store.state.displayPhao = true
                   })
                 })
@@ -215,8 +245,7 @@ export default defineComponent({
             })
           })
         })
-      }, 2000)
-
+      }, 1000)
     },
     cancelEvent() {
       console.log("cancel");
@@ -315,7 +344,7 @@ export default defineComponent({
         this.titleTable.author = "Người quay"
         this.titleTable.state = "Trạng thái"
         this.titleTable.option = "Lựa chọn"
-        this.titleTable.random = "Bắt đầu quay"
+        this.titleTable.random = "Bắt đầu quay tướng"
         this.titleTable.win = "Thắng"
         this.titleTable.lost = "Thua"
         this.titleTable.happening = "Đang đấu"
@@ -323,6 +352,8 @@ export default defineComponent({
         this.titleTable.detailButton = "Xem chi tiết"
         this.titleTable.deleteButton = "Xóa trận đấu"
         this.titleTable.titleConfirmDelete = "Bạn có muốn xóa trận đấu này?"
+        this.titleTable.nameAuthorTitle = "Bắt đầu random?"
+        this.titleTable.nameAuthorPlace = "Nhập tên người quay:  "
       } else if (this.languageValue == 2) {
         this.titleTable.date = "Date"
         this.titleTable.author = "Author"
@@ -336,6 +367,8 @@ export default defineComponent({
         this.titleTable.detailButton = "Detail"
         this.titleTable.deleteButton = "Delete"
         this.titleTable.titleConfirmDelete = "Are you sure you want to delete match?"
+        this.titleTable.nameAuthorTitle = "Start random match?"
+        this.titleTable.nameAuthorPlace = "Input author name:"
       } else if (this.languageValue == 3) {
         this.titleTable.date = "日"
         this.titleTable.author = "著者"
@@ -349,6 +382,8 @@ export default defineComponent({
         this.titleTable.detailButton = "詳細を見る"
         this.titleTable.deleteButton = "一致を削除"
         this.titleTable.titleConfirmDelete = "この一致を削除しますか?"
+        this.titleTable.nameAuthorTitle = "回転を開始します?"
+        this.titleTable.nameAuthorPlace = "撮影者の名前を入力してください:"
       }
     }
   },
@@ -393,7 +428,7 @@ export default defineComponent({
 /* phao hoa */
 .pyro {
   position: fixed;
-  top: 200px;
+  top: 220px;
   left: 50%;
   z-index: 2044;
 }
@@ -406,7 +441,7 @@ export default defineComponent({
   pointer-events: none;
   z-index: 99999999;
   border-radius: 50%;
-  box-shadow: -120px -218.66667px blue, 248px -16.66667px #00ff84, 190px 16.33333px #002bff, -113px -308.66667px #ff009d, -109px -287.66667px #ffb300, -50px -313.66667px #ff006e, 226px -31.66667px #ff4000, 180px -351.66667px #ff00d0, -12px -338.66667px #00f6ff, 220px -388.66667px #99ff00, -69px -27.66667px #ff0400, -111px -339.66667px #6200ff, 155px -237.66667px #00ddff, -152px -380.66667px #00ffd0, -50px -37.66667px #00ffdd, -95px -175.66667px #a6ff00, -88px 10.33333px #0d00ff, 112px -309.66667px #005eff, 69px -415.66667px #ff00a6, 168px -100.66667px #ff004c, -244px 24.33333px #ff6600, 97px -325.66667px #ff0066, -211px -182.66667px #00ffa2, 236px -126.66667px #b700ff, 140px -196.66667px #9000ff, 125px -175.66667px #00bbff, 118px -381.66667px #ff002f, 144px -111.66667px #ffae00, 36px -78.66667px #f600ff, -63px -196.66667px #c800ff, -218px -227.66667px #d4ff00, -134px -377.66667px #ea00ff, -36px -412.66667px #ff00d4, 209px -106.66667px #00fff2, 91px -278.66667px #000dff, -22px -191.66667px #9dff00, 139px -392.66667px #a6ff00, 56px -2.66667px #0099ff, -156px -276.66667px #ea00ff, -163px -233.66667px #00fffb, -238px -346.66667px #00ff73, 62px -363.66667px #0088ff, 244px -170.66667px #0062ff, 224px -142.66667px #b300ff, 141px -208.66667px #9000ff, 211px -285.66667px #ff6600, 181px -128.66667px #1e00ff, 90px -123.66667px #c800ff, 189px 70.33333px #00ffc8, -18px -383.66667px #00ff33, 100px -6.66667px #ff008c;
+  box-shadow: -120px -218.66667px blue, 248px -16.66667px #00ff84, 190px 16.33333px #002bff, -113px -308.66667px #ff009d, -109px -287.66667px #ffb220, -50px -313.66667px #ff006e, 226px -31.66667px #ff4000, 180px -351.66667px #ff00d0, -12px -338.66667px #00f6ff, 220px -388.66667px #99ff00, -69px -27.66667px #ff0400, -111px -339.66667px #6220ff, 155px -237.66667px #00ddff, -152px -380.66667px #00ffd0, -50px -37.66667px #00ffdd, -95px -175.66667px #a6ff00, -88px 10.33333px #0d00ff, 112px -309.66667px #005eff, 69px -415.66667px #ff00a6, 168px -100.66667px #ff004c, -244px 24.33333px #ff6600, 97px -325.66667px #ff0066, -211px -182.66667px #00ffa2, 236px -126.66667px #b700ff, 140px -196.66667px #9000ff, 125px -175.66667px #00bbff, 118px -381.66667px #ff002f, 144px -111.66667px #ffae00, 36px -78.66667px #f600ff, -63px -196.66667px #c800ff, -218px -227.66667px #d4ff00, -134px -377.66667px #ea00ff, -36px -412.66667px #ff00d4, 209px -106.66667px #00fff2, 91px -278.66667px #000dff, -22px -191.66667px #9dff00, 139px -392.66667px #a6ff00, 56px -2.66667px #0099ff, -156px -276.66667px #ea00ff, -163px -233.66667px #00fffb, -238px -346.66667px #00ff73, 62px -363.66667px #0088ff, 244px -170.66667px #0062ff, 224px -142.66667px #b220ff, 141px -208.66667px #9000ff, 211px -285.66667px #ff6600, 181px -128.66667px #1e00ff, 90px -123.66667px #c800ff, 189px 70.33333px #00ffc8, -18px -383.66667px #00ff33, 100px -6.66667px #ff008c;
   -moz-animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
   -webkit-animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
   -o-animation: 1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards;
@@ -459,55 +494,55 @@ export default defineComponent({
 
 @-webkit-keyframes gravity {
   to {
-    transform: translateY(200px);
-    -moz-transform: translateY(200px);
-    -webkit-transform: translateY(200px);
-    -o-transform: translateY(200px);
-    -ms-transform: translateY(200px);
+    transform: translateY(220px);
+    -moz-transform: translateY(220px);
+    -webkit-transform: translateY(220px);
+    -o-transform: translateY(220px);
+    -ms-transform: translateY(220px);
     opacity: 0;
   }
 }
 
 @-moz-keyframes gravity {
   to {
-    transform: translateY(200px);
-    -moz-transform: translateY(200px);
-    -webkit-transform: translateY(200px);
-    -o-transform: translateY(200px);
-    -ms-transform: translateY(200px);
+    transform: translateY(220px);
+    -moz-transform: translateY(220px);
+    -webkit-transform: translateY(220px);
+    -o-transform: translateY(220px);
+    -ms-transform: translateY(220px);
     opacity: 0;
   }
 }
 
 @-o-keyframes gravity {
   to {
-    transform: translateY(200px);
-    -moz-transform: translateY(200px);
-    -webkit-transform: translateY(200px);
-    -o-transform: translateY(200px);
-    -ms-transform: translateY(200px);
+    transform: translateY(220px);
+    -moz-transform: translateY(220px);
+    -webkit-transform: translateY(220px);
+    -o-transform: translateY(220px);
+    -ms-transform: translateY(220px);
     opacity: 0;
   }
 }
 
 @-ms-keyframes gravity {
   to {
-    transform: translateY(200px);
-    -moz-transform: translateY(200px);
-    -webkit-transform: translateY(200px);
-    -o-transform: translateY(200px);
-    -ms-transform: translateY(200px);
+    transform: translateY(220px);
+    -moz-transform: translateY(220px);
+    -webkit-transform: translateY(220px);
+    -o-transform: translateY(220px);
+    -ms-transform: translateY(220px);
     opacity: 0;
   }
 }
 
 @keyframes gravity {
   to {
-    transform: translateY(200px);
-    -moz-transform: translateY(200px);
-    -webkit-transform: translateY(200px);
-    -o-transform: translateY(200px);
-    -ms-transform: translateY(200px);
+    transform: translateY(220px);
+    -moz-transform: translateY(220px);
+    -webkit-transform: translateY(220px);
+    -o-transform: translateY(220px);
+    -ms-transform: translateY(220px);
     opacity: 0;
   }
 }

@@ -21,5 +21,9 @@ export default {
     },
     deleteMatchById(id : number){
         return Repository.delete(`/matchs/${id}`)
+    },
+    updateChangePosition(id : number, dataPositon : boolean){
+        const data = { "changePosition" : dataPositon}
+        return Repository.patch(`/matchs/${id}`, data)
     }
 }
