@@ -5,46 +5,75 @@
             <nav class="header__intruction__element__ul__menu">
                 <div>
                     <template v-if="languageValue == 1">
-                            <router-link :to="headerVi.link"><img :src="headerVi.logo" alt="logo">{{ headerVi.title
-                            }}</router-link>
-                        </template>
-                        <template v-if="languageValue == 2">
-                            <router-link :to="headerEn.link"><img :src="headerEn.logo" alt="logo">{{ headerEn.title
-                            }}</router-link>
-                        </template>
-                        <template v-if="languageValue == 3">
-                            <router-link :to="headerJp.link"><img :src="headerJp.logo" alt="logo">{{ headerJp.title
-                            }}</router-link>
-                        </template>
+                        <router-link :to="headerVi.link"><img :src="headerVi.logo" alt="logo">{{ headerVi.title
+                        }}</router-link>
+                    </template>
+                    <template v-if="languageValue == 2">
+                        <router-link :to="headerEn.link"><img :src="headerEn.logo" alt="logo">{{ headerEn.title
+                        }}</router-link>
+                    </template>
+                    <template v-if="languageValue == 3">
+                        <router-link :to="headerJp.link"><img :src="headerJp.logo" alt="logo">{{ headerJp.title
+                        }}</router-link>
+                    </template>
                 </div>
                 <div>
                     <router-link class="item" to="tel:0348485360">
+                        <el-icon>
+                            <Phone />
+                        </el-icon>
+                    </router-link>
+                    <router-link class="item" to="tel:0348485360">
+                        <el-icon>
+                            <ChatRound />
+                        </el-icon>
+                    </router-link>
+                    <router-link class="item" to="tel:0348485360">
+                        <el-icon>
+                            <LocationFilled />
+                        </el-icon>
+                    </router-link>
+                    <el-button @click="changeMode()">
+                        <el-icon v-if="darkMode">
+                            <Moon />
+                        </el-icon>
+                        <el-icon v-if="!darkMode">
+                            <Sunny />
+                        </el-icon>
+                    </el-button>
+                    &nbsp;
+                    <el-select v-model="languageValue" placeholder="Select" style="width: 120px">
+                        <el-option v-for="item in languages" :key="item.id" :label="item.name" :value="item.id" />
+                    </el-select>
+                    &nbsp;
+                    <template v-if="!checkJwt">
+                        <el-button @click="login()">
                             <el-icon>
-                                <Phone />
+                                <User />
                             </el-icon>
-                        </router-link>
-                        <router-link class="item" to="tel:0348485360">
-                            <el-icon>
-                                <ChatRound />
-                            </el-icon>
-                        </router-link>
-                        <router-link class="item" to="tel:0348485360">
-                            <el-icon>
-                                <LocationFilled />
-                            </el-icon>
-                        </router-link>
-                        <el-button @click="changeMode()">
-                            <el-icon v-if="darkMode">
-                                <Moon />
-                            </el-icon>
-                            <el-icon v-if="!darkMode">
-                                <Sunny />
-                            </el-icon>
+                            {{ titleLaguage.login }}
                         </el-button>
-                        &nbsp;
-                        <el-select v-model="languageValue" placeholder="Select" style="width: 120px">
-                            <el-option v-for="item in languages" :key="item.id" :label="item.name" :value="item.id" />
-                        </el-select>
+                        <el-button @click="register()">
+                            <el-icon>
+                                <EditPen />
+                            </el-icon>
+                            {{ titleLaguage.register }}
+                        </el-button>
+                    </template>
+                    <template v-if="checkJwt">
+                        <el-button @click="logout()">
+                            <el-icon>
+                                <Refresh />
+                            </el-icon>
+                            {{ titleLaguage.logout }}
+                        </el-button>
+                        <el-button @click="avatar()">
+                            <el-icon>
+                                <Avatar />
+                            </el-icon>
+                            {{ titleLaguage.avatar }}
+                        </el-button>
+                    </template>
                 </div>
             </nav>
         </el-col>
@@ -52,8 +81,11 @@
     </el-row>
 </template>
 <script lang="ts">
+import { AuthenticateUtil } from '@/utils/auth'
 import store from '../../../store/LanguageStore'
 import { defineComponent } from 'vue'
+import router from '@/router'
+import { ElLoading } from 'element-plus'
 export default defineComponent({
     name: 'HeaderIntruction',
     data() {
@@ -61,30 +93,92 @@ export default defineComponent({
             headerVi: { "id": 1, "title": "CLB LIÊN QUÂN", "link": "/", "logo": "https://luvina.net/public/media//logo-luvina-2022-2.png" },
             headerEn: { "id": 2, "title": "ARENA OF VALOR CLUB", "link": "/", "logo": "https://luvina.net/public/media//logo-luvina-2022-2.png" },
             headerJp: { "id": 3, "title": "モバイル連合クラブ", "link": "/", "logo": "https://luvina.net/public/media//logo-luvina-2022-2.png" },
+            titleLaguage: {
+                logout: "Đăng xuất",
+                login: "Đăng nhập",
+                register: "Đăng ký",
+                avatar: "Xem hồ sơ"
+            },
             darkMode: false,
             languages: [
                 { "id": 1, "name": "Tiếng Việt" },
                 { "id": 2, "name": "English" },
                 { "id": 3, "name": "Japanese" }
             ],
-            languageValue: 1
+            languageValue: 1,
+            checkJwt: false
         }
     },
     methods: {
         changeMode() {
             this.darkMode = !this.darkMode
             this.$emit("darkMode", this.darkMode)
+        },
+        changeLanguage(newData: number) {
+            if (newData == 1) {
+                this.titleLaguage.logout = "Đăng xuất"
+                this.titleLaguage.login = "Đăng nhập"
+                this.titleLaguage.register = "Đăng ký"
+                this.titleLaguage.avatar = "Xem hồ sơ"
+            } if (newData == 2) {
+                this.titleLaguage.logout = "Logout"
+                this.titleLaguage.login = "Login"
+                this.titleLaguage.register = "Register"
+                this.titleLaguage.avatar = "View profile"
+            } if (newData == 3) {
+                this.titleLaguage.logout = "ログアウト"
+                this.titleLaguage.login = "ログイン"
+                this.titleLaguage.register = "登録する"
+                this.titleLaguage.avatar = "プロフィールを見る"
+            }
+        },
+        login() {
+            router.push('/login')
+        },
+        register() {
+            console.log("no thing!!!");
+        },
+        avatar() {
+            console.log("no thing!!!");
+        },
+        logout() {
+            const loading = ElLoading.service({
+                lock: true,
+                text: 'Loading',
+                background: 'rgba(0, 0, 0, 0.7)',
+            })
+            setTimeout(() => {
+                const accessToken = AuthenticateUtil.getJwtFromSession()
+                if (accessToken) {
+                    AuthenticateUtil.removeJwtFromSession()
+                    loading.close()
+                    this.checkJwt = false;
+                    router.push('/login')
+                }
+            }, 300)
+
         }
     },
     watch: {
         languageValue: function (newData) {
             store.commit('changeLanguage', newData)
             this.languageValue = store.state.language
+            this.changeLanguage(newData)
         }
     },
     mounted() {
         this.languageValue = store.state.language
-    },
+        if (AuthenticateUtil.checkJwt()) {
+            this.checkJwt = true;
+        }
+        this.checkJwt = store.state.checkJwt
+        store.watch(
+            state => state.checkJwt,
+            newValue => {
+                this.checkJwt = newValue
+            }
+        )
+    }
 })
 </script>
 <style lang="css">

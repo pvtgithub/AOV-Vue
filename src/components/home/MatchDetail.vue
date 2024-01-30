@@ -63,6 +63,7 @@ import { defineComponent } from 'vue'
 import MatchService from '@/service/MatchService'
 import store from '@/store/LanguageStore'
 import {ElMessage} from 'element-plus'
+import {AuthenticateUtil} from '@/utils/auth'
 
 export default defineComponent({
   name: "MatchDetail",

@@ -1,12 +1,14 @@
 import { createStore } from 'vuex'
 
 export default createStore<{
+  checkJwt: any;
   displayPhao: boolean; language: number 
 }>({
   state() {
     return {
       language: 1,
-      displayPhao: false
+      displayPhao: false,
+      checkJwt: false
     }
   },
   mutations: {
@@ -15,6 +17,9 @@ export default createStore<{
     },
     changeDisplayPhao(state, newDisplayPhao) {
       state.displayPhao = newDisplayPhao;
+    },
+    changeCheckJwt(state, newCheckJwt) {
+      state.checkJwt = newCheckJwt;
     }
   }
 })
