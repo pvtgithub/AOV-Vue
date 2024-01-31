@@ -72,4 +72,8 @@ export default defineComponent({
     },
 })
 </script>
-<style lang="css"></style>
+<style lang="css">
+    .dark__mode .el-form-item__label, .dark__mode h1{
+        color: var(--color-text);
+    }
+</style>

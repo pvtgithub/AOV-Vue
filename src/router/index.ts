@@ -21,7 +21,16 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     name: 'Login',
-    component: LoginView
+    component: LoginView,
+    beforeEnter: (to, from, next) => {
+      const checkJwt = AuthenticateUtil.checkJwt();
+      if(checkJwt){
+        next('/');
+      }
+      else{
+        next()
+      }
+    },
   }
 ]
 

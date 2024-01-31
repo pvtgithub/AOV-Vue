@@ -168,10 +168,11 @@ export default defineComponent({
     },
     mounted() {
         this.languageValue = store.state.language
+        this.checkJwt = store.state.checkJwt
+
         if (AuthenticateUtil.checkJwt()) {
             this.checkJwt = true;
         }
-        this.checkJwt = store.state.checkJwt
         store.watch(
             state => state.checkJwt,
             newValue => {
