@@ -16,4 +16,10 @@ export class AllUtil {
     static strChampionToArray(strChampion : string) : string[] {
         return strChampion.split(',');
     }
+
+    static getLanguageFromStorage() : number{ 
+        const languageValue = localStorage.getItem('customLanguage') ? localStorage.getItem('customLanguage') : localStorage.getItem('defaultLanguage')
+        
+        return parseInt(languageValue as any)
+    }
 }

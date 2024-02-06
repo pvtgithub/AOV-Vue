@@ -86,6 +86,7 @@ import store from '../../../store/LanguageStore'
 import { defineComponent } from 'vue'
 import router from '@/router'
 import { ElLoading } from 'element-plus'
+import { AllUtil } from '@/utils/allUtil'
 export default defineComponent({
     name: 'HeaderIntruction',
     data() {
@@ -105,7 +106,7 @@ export default defineComponent({
                 { "id": 2, "name": "English" },
                 { "id": 3, "name": "Japanese" }
             ],
-            languageValue: 1,
+            languageValue: 1 as any,
             checkJwt: store.state.checkJwt
         }
     },
@@ -162,8 +163,8 @@ export default defineComponent({
     },
     watch: {
         languageValue: function (newData) {
-            store.commit('changeLanguage', newData)
-            this.languageValue = store.state.language
+            localStorage.setItem('customLanguage', newData)
+            this.languageValue = AllUtil.getLanguageFromStorage()
             this.changeLanguage(newData)
         }
     },

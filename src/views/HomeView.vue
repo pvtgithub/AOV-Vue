@@ -134,7 +134,6 @@ export default defineComponent({
       page: 1,
       pageSize: 10,
       total: 0,
-      languageValue: 1,
       nameAuthor: "",
       titleTable:
       {
@@ -164,6 +163,9 @@ export default defineComponent({
     displayData(): any {
       if (!this.tableData || this.tableData.length === 0) return [];
       return this.tableData.slice(this.pageSize * this.page - this.pageSize, this.pageSize * this.page)
+    },
+    languageValue: function(){
+      return AllUtil.getLanguageFromStorage();
     }
   },
   methods: {
@@ -442,19 +444,11 @@ export default defineComponent({
     }
   },
   mounted() {
-    this.languageValue = store.state.language
     this.displayPhao = store.state.displayPhao
     store.dispatch('updatePayloadUser')
     this.nameAuthor = store.state.payloadUser.name
 
     this.changeLanguage()
-    store.watch(
-      state => state.language,
-      newValue => {
-        this.languageValue = newValue
-        this.changeLanguage()
-      }
-    )
     store.watch(
       state => state.displayPhao,
       newValue => {

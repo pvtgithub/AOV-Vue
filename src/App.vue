@@ -27,6 +27,9 @@ export default defineComponent({
     HeaderIntruction,
     FooterComponent
   },
+  mounted() {
+    localStorage.setItem('defaultLanguage', '1')
+  },
   methods: {
     handleDarkMode(darkMode: any) {
       this.darkMode = darkMode;
