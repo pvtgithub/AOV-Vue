@@ -13,12 +13,14 @@ export class AuthenticateUtil {
     }
     static removeJwtFromSession(){
         sessionStorage.removeItem('access_token');
+        sessionStorage.removeItem('payloadUser');
+
     }
     static checkJwt() : boolean { 
         const jwt = this.getJwtFromSession();
         const payload = this.parseJwt(jwt);
         if(!payload || Date.now() >= payload.exp * 1000){
-            sessionStorage.removeItem("access_token");
+            this.removeJwtFromSession()
             return false
         }
         return true

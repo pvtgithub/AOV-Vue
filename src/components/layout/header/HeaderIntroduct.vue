@@ -18,17 +18,17 @@
                     </template>
                 </div>
                 <div>
-                    <router-link class="item" to="tel:0348485360">
-                        <el-icon>
-                            <Phone />
-                        </el-icon>
+                    <router-link class="item" to="/a">
+                            <el-icon>
+                                <Phone />
+                            </el-icon>
                     </router-link>
-                    <router-link class="item" to="tel:0348485360">
+                    <router-link class="item" to="/a">
                         <el-icon>
                             <ChatRound />
                         </el-icon>
                     </router-link>
-                    <router-link class="item" to="tel:0348485360">
+                    <router-link class="item" to="/a">
                         <el-icon>
                             <LocationFilled />
                         </el-icon>
@@ -106,7 +106,7 @@ export default defineComponent({
                 { "id": 3, "name": "Japanese" }
             ],
             languageValue: 1,
-            checkJwt: false
+            checkJwt: store.state.checkJwt
         }
     },
     methods: {
@@ -151,8 +151,9 @@ export default defineComponent({
                 const accessToken = AuthenticateUtil.getJwtFromSession()
                 if (accessToken) {
                     AuthenticateUtil.removeJwtFromSession()
+                    store.dispatch('updatePayloadUser', {})
                     loading.close()
-                    this.checkJwt = false;
+                    store.state.checkJwt = false
                     router.push('/login')
                 }
             }, 300)
@@ -170,16 +171,14 @@ export default defineComponent({
         this.languageValue = store.state.language
         this.checkJwt = store.state.checkJwt
 
-        if (AuthenticateUtil.checkJwt()) {
-            this.checkJwt = true;
-        }
         store.watch(
             state => state.checkJwt,
             newValue => {
                 this.checkJwt = newValue
             }
         )
-    }
+    },
+    
 })
 </script>
 <style lang="css">

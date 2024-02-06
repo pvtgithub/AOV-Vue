@@ -42,20 +42,22 @@ export default defineComponent({
                 background: 'rgba(0, 0, 0, 0.7)',
             })
             setTimeout(() => {
-                loading.close()
-
                 const payload = { "email": this.email, "password": this.password }
                 AuthService.login(payload).then((res: any) => {
                     if (res.data.accessToken) {
                         AuthenticateUtil.setJwtToSession(res.data.accessToken);
+                        sessionStorage.setItem('payloadUser', JSON.stringify(res.data.user))
+
                         const checkJwt = AuthenticateUtil.checkJwt();
-                        store.state.checkJwt = true
+                        store.state.checkJwt = checkJwt
                         if (checkJwt) {
+                            store.state.checkJwt = true
                             router.push('/')
                         } else {
                             router.push('/login')
                         }
                     }
+                    loading.close()
                 }).catch((res) => {
                     if (res.response) {
                         ElMessage({
@@ -66,6 +68,7 @@ export default defineComponent({
                         this.email = ""
                         this.password = ""
                     }
+                    loading.close()
                 })
             }, 500);
         }
@@ -73,7 +76,8 @@ export default defineComponent({
 })
 </script>
 <style lang="css">
-    .dark__mode .el-form-item__label, .dark__mode h1{
-        color: var(--color-text);
-    }
+.dark__mode .el-form-item__label,
+.dark__mode h1 {
+    color: var(--color-text);
+}
 </style>

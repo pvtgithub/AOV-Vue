@@ -7,7 +7,8 @@
       </el-button>
 
       <el-dialog v-model="dialogFormVisible" :title="titleTable.nameAuthorTitle" width="500">
-        <el-input :placeholder="titleTable.nameAuthorPlace" v-model="nameAuthor" />
+        <p>{{ titleTable.nameAuthorPlace }}</p>
+        <el-input v-model="nameAuthor" :disabled="true" />
         <template #footer>
           <span class="dialog-footer">
             <el-button type="danger" @click="dialogFormVisible = false">Cancel</el-button>
@@ -24,18 +25,22 @@
         <el-table-column prop="result" :label="titleTable.state" width="170" :filters="[
           { text: 'Thắng', value: 1 },
           { text: 'Thua', value: 2 },
-          { text: 'Chưu diễn ra', value: 3 },
-          { text: 'Đang đấu', value: 4 },
+          { text: 'Đang đấu', value: 3 },
+          { text: 'Chưu diễn ra', value: 4 },
         ]" :filter-method="filterTag" filter-placement="bottom-end">
           <template #default="scope">
-            <el-tag v-if="scope.row.result == 1" :type="'success'" disable-transitions>{{ titleTable.win }}</el-tag>
-            <el-tag v-if="scope.row.result == 2" :type="'error'" disable-transitions>{{ titleTable.lost }}</el-tag>
-            <el-tag v-if="scope.row.result == 3" :type="''" disable-transitions>{{ titleTable.happening }}</el-tag>
-            <el-tag v-if="scope.row.result == 4" :type="'warning'" disable-transitions>{{ titleTable.not_happening
-            }}</el-tag>
+            <el-tag class="cur_poiter" @click="changeState(scope.row.result, scope.row.id)" v-if="scope.row.result == 1"
+              :type="'success'" disable-transitions>{{ titleTable.win }}</el-tag>
+            <el-tag class="cur_poiter" @click="changeState(scope.row.result, scope.row.id)" v-if="scope.row.result == 2"
+              :type="'danger'" disable-transitions>{{ titleTable.lost }}</el-tag>
+            <el-tag class="cur_poiter" @click="changeState(scope.row.result, scope.row.id)" v-if="scope.row.result == 3"
+              :type="''" disable-transitions>{{ titleTable.happening }}</el-tag>
+            <el-tag class="cur_poiter" @click="changeState(scope.row.result, scope.row.id)" v-if="scope.row.result == 4"
+              :type="'warning'" disable-transitions>{{ titleTable.not_happening
+              }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="changePosition" label="Đổi đường" width="170" >
+        <el-table-column prop="changePosition" label="Đổi đường" width="170">
           <template #default="scope">
             <el-tag v-if="scope.row.changePosition == true" :type="'success'" disable-transitions>Có đổi đường</el-tag>
             <el-tag v-if="scope.row.changePosition == false" :type="'danger'" disable-transitions>Không đổi đường</el-tag>
@@ -85,6 +90,7 @@ import { ref } from 'vue'
 import { ElMessage, ElLoading, type TableColumnCtx, type TableInstance } from 'element-plus'
 import MatchDetail from '@/components/home/MatchDetail.vue'
 import store from '@/store/LanguageStore'
+import { AllUtil } from '@/utils/allUtil'
 
 interface Match {
   id: number
@@ -146,7 +152,7 @@ export default defineComponent({
         "deleteButton": "Xóa trận đấu",
         "titleConfirmDelete": "Bạn có muốn xóa trận đấu này?",
         "nameAuthorTitle": "Bắt đầu random?",
-        "nameAuthorPlace": "Nhập tên người quay:  "
+        "nameAuthorPlace": "Tên người quay:  "
       },
       exceptionChampion: [],
     }
@@ -160,6 +166,9 @@ export default defineComponent({
   methods: {
     async getDataMatch() {
       const { data } = await MatchService.getAll(1);
+      data.forEach((element: any) => {
+        element.date = AllUtil.timeToDateTimeFormat(element.date);
+      });
       this.tableData = data
     },
     async postMatch(match: any) {
@@ -189,6 +198,11 @@ export default defineComponent({
     },
     async deleteMatchById(id: number) {
       await MatchService.deleteMatchById(id)
+      ElMessage({
+        showClose: true,
+        message: `Đã xóa trận đấu ${id} !`,
+        type: 'success',
+      })
       this.getDataMatch()
     },
     startRandom() {
@@ -208,12 +222,9 @@ export default defineComponent({
       })
       setTimeout(() => {
         loading.close()
-        var matchRandom = { "id": 0, "date": "", "author": "", "changePosition": false, "result": 0, "rank_1": "0", "rank_2": "", "rank_3": "", "rank_4": "", "rank_5": "", "champion_top": "", "champion_mid": "", "champion_jungle": "", "champion_ad": "", "champion_sp": "" };
+        var matchRandom = { "id": 0, "date": Date.now(), "author": "", "changePosition": false, "result": 0, "rank_1": "0", "rank_2": "", "rank_3": "", "rank_4": "", "rank_5": "", "champion_top": "", "champion_mid": "", "champion_jungle": "", "champion_ad": "", "champion_sp": "" };
         (this.randomedPosition as any) = this.randomPositon();
-        var today = new Date();
-        var dateCurent = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear() + '|' + today.getHours() + 'h-' + today.getMinutes() + 'p-' + today.getSeconds() + 's';
         matchRandom.id = Math.floor(Math.random() * 10000000)
-        matchRandom.date = dateCurent
         matchRandom.author = this.nameAuthor
         matchRandom.changePosition = false
         matchRandom.result = 3
@@ -234,9 +245,11 @@ export default defineComponent({
                 this.handleChampion(5, 1).then((res) => {
                   matchRandom.champion_sp = res
                   this.postMatch(matchRandom).then((res) => {
+                    console.log(matchRandom.champion_top);
+                    
                     this.getDataMatch()
                     this.getMatchById(res.id, 1, false)
-                    this.nameAuthor = ""
+                    this.nameAuthor = store.state.payloadUser.name
                     this.dialogFormVisible = false
                     store.state.displayPhao = true
                   })
@@ -285,7 +298,7 @@ export default defineComponent({
       return exceptionChampion
     },
     handleChampion(idChampion: number, language: number): Promise<string> {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         this.getChampion(idChampion, language).then((result) => {
           let listChampion = "";
           var randomedChampion = []
@@ -328,7 +341,7 @@ export default defineComponent({
               listChampion += element.name;
               break;
             }
-            listChampion += element.name + ' | ';
+            listChampion += element.name + ',';
           }
 
           resolve(listChampion);
@@ -337,6 +350,35 @@ export default defineComponent({
     },
     handleCurrentChangePage(val: number) {
       this.page = val
+    },
+    changeState(state: number, id: number) {
+      const loading = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+      })
+      setTimeout(() => {
+        if (state == 4) {
+          state = 1
+        } else {
+          state++
+        }
+        MatchService.updateState(id, state).then(() => {
+          ElMessage({
+            showClose: true,
+            message: `Đã cập nhật trạng thái trận đấu!`,
+            type: 'success',
+          })
+          this.getDataMatch()
+        }).catch(() => {
+          ElMessage({
+            showClose: true,
+            message: `Có lỗi xảy ra!`,
+            type: 'error',
+          })
+        })
+        loading.close()
+      }, 300);
     },
     changeLanguage() {
       if (this.languageValue == 1) {
@@ -353,7 +395,7 @@ export default defineComponent({
         this.titleTable.deleteButton = "Xóa trận đấu"
         this.titleTable.titleConfirmDelete = "Bạn có muốn xóa trận đấu này?"
         this.titleTable.nameAuthorTitle = "Bắt đầu random?"
-        this.titleTable.nameAuthorPlace = "Nhập tên người quay:  "
+        this.titleTable.nameAuthorPlace = "Tên người quay:  "
       } else if (this.languageValue == 2) {
         this.titleTable.date = "Date"
         this.titleTable.author = "Author"
@@ -390,6 +432,9 @@ export default defineComponent({
   mounted() {
     this.languageValue = store.state.language
     this.displayPhao = store.state.displayPhao
+    store.dispatch('updatePayloadUser')
+    this.nameAuthor = store.state.payloadUser.name
+
     this.changeLanguage()
     store.watch(
       state => state.language,
@@ -710,5 +755,9 @@ export default defineComponent({
     margin-top: 30%;
     margin-left: 80%;
   }
+}
+
+.el-tag.cur_poiter:hover {
+  cursor: pointer;
 }
 </style>

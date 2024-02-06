@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
+import PageNotFound from '../views/PageNotFound.vue'
 import { AuthenticateUtil } from '@/utils/auth'
 
 const routes: Array<RouteRecordRaw> = [
@@ -31,6 +32,10 @@ const routes: Array<RouteRecordRaw> = [
         next()
       }
     },
+  },
+  {
+    path: '/:catchAll(.*)',
+    component: PageNotFound
   }
 ]
 
