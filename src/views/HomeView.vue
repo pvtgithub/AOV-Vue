@@ -87,7 +87,7 @@ import { defineComponent } from 'vue'
 import MatchService from '@/service/MatchService'
 import ChampionService from '@/service/ChampionService'
 import { ref } from 'vue'
-import { ElMessage, ElLoading, type TableColumnCtx, type TableInstance } from 'element-plus'
+import { ElMessage, ElLoading, type TableInstance } from 'element-plus'
 import MatchDetail from '@/components/home/MatchDetail.vue'
 import store from '@/store/LanguageStore'
 import { AllUtil } from '@/utils/allUtil'
@@ -182,16 +182,18 @@ export default defineComponent({
       tableRef.value!.clearFilter(['date'])
     },
     filterTag(value: number, row: Match) {
+      console.log("filter: " , value);
+      
       return row.result === value
     },
-    filterHandler(
-      value: string,
-      row: Match,
-      column: TableColumnCtx<Match>
-    ) {
-      const property = column['property']
-      return (row as any)[property] === value
-    },
+    // filterHandler(
+    //   value: string,
+    //   row: Match,
+    //   column: TableColumnCtx<Match>
+    // ) {
+    //   const property = column['property']
+    //   return (row as any)[property] === value
+    // },
     getMatchById(id: number, language: number, displayListChampion: boolean) {
       this.idDetail = id;
       (this.$refs['runHandle'] as any).handleData(id, language, displayListChampion)
