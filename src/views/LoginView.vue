@@ -46,7 +46,7 @@ export default defineComponent({
                 AuthService.login(payload).then((res: any) => {
                     if (res.data.accessToken) {
                         AuthenticateUtil.setJwtToSession(res.data.accessToken);
-                        sessionStorage.setItem('payloadUser', JSON.stringify(res.data.user))
+                        localStorage.setItem('payloadUser', JSON.stringify(res.data.user))
 
                         const checkJwt = AuthenticateUtil.checkJwt();
                         store.state.checkJwt = checkJwt

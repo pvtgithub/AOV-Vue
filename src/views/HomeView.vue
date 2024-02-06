@@ -23,10 +23,10 @@
         <el-table-column prop="date" :label="titleTable.date" sortable width="220" column-key="date" />
         <el-table-column prop="author" :label="titleTable.author" width="170" />
         <el-table-column prop="result" :label="titleTable.state" width="170" :filters="[
-          { text: 'Thắng', value: 1 },
-          { text: 'Thua', value: 2 },
-          { text: 'Đang đấu', value: 3 },
-          { text: 'Chưu diễn ra', value: 4 },
+          { text: titleTable.win, value: 1 },
+          { text: titleTable.lost, value: 2 },
+          { text: titleTable.happening, value: 3 },
+          { text: titleTable.not_happening, value: 4 },
         ]" :filter-method="filterTag" filter-placement="bottom-end">
           <template #default="scope">
             <el-tag class="cur_poiter" @click="changeState(scope.row.result, scope.row.id)" v-if="scope.row.result == 1"
@@ -40,10 +40,10 @@
               }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="changePosition" label="Đổi đường" width="170">
+        <el-table-column prop="changePosition" :label="titleTable.change" width="170">
           <template #default="scope">
-            <el-tag v-if="scope.row.changePosition == true" :type="'success'" disable-transitions>Có đổi đường</el-tag>
-            <el-tag v-if="scope.row.changePosition == false" :type="'danger'" disable-transitions>Không đổi đường</el-tag>
+            <el-tag v-if="scope.row.changePosition == true" :type="'success'" disable-transitions>{{ titleTable.have_change }}</el-tag>
+            <el-tag v-if="scope.row.changePosition == false" :type="'danger'" disable-transitions>{{ titleTable.no_change }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column :label="titleTable.option" #default="scope">
@@ -76,7 +76,7 @@
         <div class="before"></div>
         <div class="after"></div>
       </div>
-      <MatchDetail @getMatchAgain="getDataMatch()" ref="runHandle" :id="idDetail" />
+      <MatchDetail @getMatchAgain="getDataMatch()" ref="runHandle" :id="idDetail" :languageValue="languageValue"/>
     </el-col>
     <el-col :span="4"></el-col>
   </el-row>
@@ -142,12 +142,15 @@ export default defineComponent({
         "date": "Ngày",
         "author": "Tác giả",
         "state": "Trạng thái",
+        "change" : "Đổi đường",
         "option": "Lựa chọn",
         "random": "Bắt đầu quay tướng",
         "win": "Thắng",
         "lost": "Thua",
         "happening": "Đang đấu",
         "not_happening": "Chưa diễn ra",
+        "have_change" : "Có đổi đường",
+        "no_change" : "Không đổi đường",
         "detailButton": "Xem chi tiết",
         "deleteButton": "Xóa trận đấu",
         "titleConfirmDelete": "Bạn có muốn xóa trận đấu này?",
@@ -385,12 +388,15 @@ export default defineComponent({
         this.titleTable.date = "Ngày quay"
         this.titleTable.author = "Người quay"
         this.titleTable.state = "Trạng thái"
+        this.titleTable.change = "Đổi đường"
         this.titleTable.option = "Lựa chọn"
         this.titleTable.random = "Bắt đầu quay tướng"
         this.titleTable.win = "Thắng"
         this.titleTable.lost = "Thua"
         this.titleTable.happening = "Đang đấu"
         this.titleTable.not_happening = "Chưa diễn ra"
+        this.titleTable.have_change = "Có đổi đường"
+        this.titleTable.no_change = "Không đổi đường"
         this.titleTable.detailButton = "Xem chi tiết"
         this.titleTable.deleteButton = "Xóa trận đấu"
         this.titleTable.titleConfirmDelete = "Bạn có muốn xóa trận đấu này?"
@@ -400,12 +406,15 @@ export default defineComponent({
         this.titleTable.date = "Date"
         this.titleTable.author = "Author"
         this.titleTable.state = "State"
+        this.titleTable.change = "Change Position"
         this.titleTable.option = "Option"
         this.titleTable.random = "Random"
         this.titleTable.win = "Win"
         this.titleTable.lost = "Lost"
         this.titleTable.happening = "Happening"
         this.titleTable.not_happening = "Has't happening yet"
+        this.titleTable.have_change = "Changed"
+        this.titleTable.no_change = "Not changing"
         this.titleTable.detailButton = "Detail"
         this.titleTable.deleteButton = "Delete"
         this.titleTable.titleConfirmDelete = "Are you sure you want to delete match?"
@@ -415,12 +424,15 @@ export default defineComponent({
         this.titleTable.date = "日"
         this.titleTable.author = "著者"
         this.titleTable.state = "状態"
+        this.titleTable.change = "ルート変更"
         this.titleTable.option = "選択する"
         this.titleTable.random = "振り向く"
         this.titleTable.win = "勝つ"
         this.titleTable.lost = "失う"
         this.titleTable.happening = "起こっている"
         this.titleTable.not_happening = "まだ起こっていない"
+        this.titleTable.have_change = "ルート変更あり"
+        this.titleTable.no_change = "変更なし"
         this.titleTable.detailButton = "詳細を見る"
         this.titleTable.deleteButton = "一致を削除"
         this.titleTable.titleConfirmDelete = "この一致を削除しますか?"

@@ -32,7 +32,7 @@ export default createStore<{
     // Action để cập nhật payloadUser
     updatePayloadUser({ commit }) {
       const newPayloadUser = AuthenticateUtil.checkJwt()
-        ? JSON.parse(sessionStorage.getItem('payloadUser') as any)
+        ? JSON.parse(localStorage.getItem('payloadUser') as any)
         : {};
       commit('changePayloadUser', newPayloadUser);
     }

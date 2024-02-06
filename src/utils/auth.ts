@@ -2,18 +2,18 @@ export class AuthenticateUtil {
 
     static setJwtToSession(jwt : string) {
         if(jwt){
-            sessionStorage.setItem('access_token', jwt);
+            localStorage.setItem('access_token', jwt);
         }
     }
     static getJwtFromSession(){
-        const jwt = sessionStorage.getItem('access_token');
+        const jwt = localStorage.getItem('access_token');
         if(jwt){
             return jwt
         }
     }
     static removeJwtFromSession(){
-        sessionStorage.removeItem('access_token');
-        sessionStorage.removeItem('payloadUser');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('payloadUser');
 
     }
     static checkJwt() : boolean { 

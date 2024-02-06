@@ -84,6 +84,23 @@
       "champion_jungle": "Florentino,Lindis,Bright,Enzo,Ngộ không,Zill,Murad,Ryoma,Tulen,Kaine",
       "champion_ad": "Thorne,Moren,Wisp,Violet,Celica,Stuart,Yorn,Slimz,Laville,Hayate",
       "champion_sp": "Grakk,Ormarr,Thane,Zip,Ishar,Roxie,Richter,Wiro,Ming,Sephera"
+    },
+    {
+      "id": 3054066,
+      "date": 1707208664773,
+      "author": "ThoPV",
+      "changePosition": false,
+      "result": 3,
+      "rank_1": "Sp",
+      "rank_2": "Top",
+      "rank_3": "Mid",
+      "rank_4": "Ad",
+      "rank_5": "Rừng",
+      "champion_top": "Wonder Woman,Omen,Paine,Ata,Max,Amily,Sinestrea,Veres,Arthur,Ryoma",
+      "champion_mid": "Lauriel,Natalya,Zata,Jinna,Tulen,The Flash,Lilliana,Điêu thuyền,Kahlii,Raz",
+      "champion_jungle": "Rourke,Zuka,Dextra,Kaine,Lindis,Quillen,Zill,Bijan,Allain,Sinestrea",
+      "champion_ad": "Violet,Thorne,Wisp,Stuart,Slimz,Tel'Annas,Capheny,Elsu,Valhein,Teeri",
+      "champion_sp": "Richter,Krizzix,Roxie,Y'bneth,Wiro,Annette,Xeniel,Helen,Gildur,Maloch"
     }
   ],
   "users": [
