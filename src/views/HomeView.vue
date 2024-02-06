@@ -182,8 +182,6 @@ export default defineComponent({
       tableRef.value!.clearFilter(['date'])
     },
     filterTag(value: number, row: Match) {
-      console.log("filter: " , value);
-      
       return row.result === value
     },
     // filterHandler(
