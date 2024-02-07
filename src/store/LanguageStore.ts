@@ -4,14 +4,16 @@ import { createStore } from 'vuex'
 export default createStore<{
   payloadUser: any;
   checkJwt: any;
-  displayPhao: boolean; language: number
+  displayPhao: boolean; language: number;
+  darkMode: boolean;
 }>({
   state() {
     return {
       language: 1,
       displayPhao: false,
       checkJwt: AuthenticateUtil.checkJwt(),
-      payloadUser: {}
+      payloadUser: {},
+      darkMode: false
     }
   },
   mutations: {
@@ -26,6 +28,9 @@ export default createStore<{
     },
     changePayloadUser(state, newPayloadUser) {
       state.payloadUser = newPayloadUser;
+    },
+    changeDarkMode(state, newDarkMode) {
+      state.darkMode = newDarkMode
     }
   },
   actions: {

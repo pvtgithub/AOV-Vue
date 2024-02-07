@@ -1,7 +1,7 @@
 <template>
   <div :class="['container_app', { dark__mode: darkMode }]">
     <header class="main_header">
-      <HeaderIntruction @darkMode="handleDarkMode" />
+      <HeaderIntruction/>
     </header>
     <main class="main_main">
       <router-view />
@@ -15,6 +15,7 @@
 import { defineComponent } from 'vue'
 import HeaderIntruction from '@/components/layout/header/HeaderIntroduct.vue'
 import FooterComponent from '@/components/layout/footer/FooterComponent.vue'
+import store from './store/LanguageStore'
 
 export default defineComponent({
   name: "MainApp",
@@ -29,11 +30,16 @@ export default defineComponent({
   },
   mounted() {
     localStorage.setItem('defaultLanguage', '1')
-  },
-  methods: {
-    handleDarkMode(darkMode: any) {
-      this.darkMode = darkMode;
-    }
+    this.darkMode = localStorage.getItem('darkMode') === 'true'
+    store.commit('changeDarkMode', this.darkMode)
+    
+    store.watch(
+     state => state.darkMode,
+     newValue => {
+      console.log(newValue);
+      this.darkMode = newValue
+     }
+    )
   },
   setup() {
     const debounce = (callback: (...args: any[]) => void, delay: number) => {

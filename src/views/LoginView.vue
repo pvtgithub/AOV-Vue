@@ -39,7 +39,8 @@ export default defineComponent({
                 "title_password": "Mật khẩu",
                 "enter_email": "Nhập email của bạn...",
                 "enter_password": "Nhập mật khẩu của bạn...",
-                "login": "Đăng nhập"
+                "login": "Đăng nhập",
+                "login_error": "Email hoặc mật khẩu không chính xác!"
             }
         }
     },
@@ -63,7 +64,8 @@ export default defineComponent({
                     "title_password": "Mật khẩu",
                     "enter_email": "Nhập email của bạn...",
                     "enter_password": "Nhập mật khẩu của bạn...",
-                    "login": "Đăng nhập"
+                    "login": "Đăng nhập",
+                    "login_error": "Email hoặc mật khẩu không chính xác!"
                 }
             } else if (this.languageValue == 2) {
                 this.titleLanguage = {
@@ -72,7 +74,8 @@ export default defineComponent({
                     "title_password": "Password",
                     "enter_email": "Enter your email...",
                     "enter_password": "Enter your password...",
-                    "login": "Login"
+                    "login": "Login",
+                    "login_error": "Email or password is incorrect!"
                 }
             } else if (this.languageValue == 3) {
                 this.titleLanguage = {
@@ -81,7 +84,8 @@ export default defineComponent({
                     "title_password": "パスワード",
                     "enter_email": "メールを入力してください...",
                     "enter_password": "パスワードを入力してください...",
-                    "login": "ログイン"
+                    "login": "ログイン",
+                    "login_error": "メールアドレスまたはパスワードが間違っています!"
                 }
             }
         },
@@ -112,7 +116,7 @@ export default defineComponent({
                     if (res.response) {
                         ElMessage({
                             showClose: true,
-                            message: 'Email hoặc mật khẩu không chính xác!',
+                            message: this.titleLanguage.login_error,
                             type: 'error',
                         })
                         this.email = ""

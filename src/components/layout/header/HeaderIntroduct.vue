@@ -113,7 +113,8 @@ export default defineComponent({
     methods: {
         changeMode() {
             this.darkMode = !this.darkMode
-            this.$emit("darkMode", this.darkMode)
+            store.commit('changeDarkMode', this.darkMode)
+            localStorage.setItem('darkMode',this.darkMode.toString())            
         },
         changeLanguage(newData: number) {
             if (newData == 1) {
@@ -177,6 +178,7 @@ export default defineComponent({
     mounted() {
         this.languageValue = AllUtil.getLanguageFromStorage()
         this.checkJwt = store.state.checkJwt
+        this.darkMode = localStorage.getItem('darkMode') === 'true'
         store.watch(
             state => state.checkJwt,
             newValue => {
