@@ -2,16 +2,16 @@
     <el-row>
         <el-col :span="8"></el-col>
         <el-col :span="8">
-            <h1>Đăng nhập</h1>
+            <h1>{{  titleLanguage.titleHeader }}</h1>
             <el-form>
-                <el-form-item label="Email" :label-width="80">
-                    <el-input v-model="email" placeholder="Enter your email" type="email"></el-input>
+                <el-form-item :label="titleLanguage.title_email" :label-width="100">
+                    <el-input v-model="email" :placeholder="titleLanguage.enter_email" type="email"></el-input>
                 </el-form-item>
-                <el-form-item label="Password" :label-width="80">
-                    <el-input v-model="password" placeholder="Enter your password" type="password"></el-input>
+                <el-form-item :label="titleLanguage.title_password" :label-width="100">
+                    <el-input v-model="password" :placeholder="titleLanguage.enter_password" type="password"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" style="margin-left: 80%;" @click="login()">Đăng nhập</el-button>
+                    <el-button type="primary" style="margin-left: 80%;" @click="login()">{{ titleLanguage.login }}</el-button>
                 </el-form-item>
             </el-form>
         </el-col>
@@ -31,10 +31,60 @@ export default defineComponent({
     data() {
         return {
             email: "",
-            password: ""
+            password: "",
+            languageValue: 1,
+            titleLanguage: {
+                "titleHeader": "Đăng nhập",
+                "title_email": "Email",
+                "title_password": "Mật khẩu",
+                "enter_email": "Nhập email của bạn...",
+                "enter_password": "Nhập mật khẩu của bạn...",
+                "login": "Đăng nhập"
+            }
         }
     },
+    mounted() {
+        this.languageValue = store.state.language
+        this.changeLanguage()
+        store.watch(
+            state => state.language,
+            newValue => {
+                this.languageValue = newValue
+                this.changeLanguage()
+            }
+        )
+    },
     methods: {
+        changeLanguage() {
+            if (this.languageValue == 1) {
+                this.titleLanguage = {
+                    "titleHeader": "Đăng nhập",
+                    "title_email": "Email",
+                    "title_password": "Mật khẩu",
+                    "enter_email": "Nhập email của bạn...",
+                    "enter_password": "Nhập mật khẩu của bạn...",
+                    "login": "Đăng nhập"
+                }
+            } else if (this.languageValue == 2) {
+                this.titleLanguage = {
+                    "titleHeader": "Login",
+                    "title_email": "Email",
+                    "title_password": "Password",
+                    "enter_email": "Enter your email...",
+                    "enter_password": "Enter your password...",
+                    "login": "Login"
+                }
+            } else if (this.languageValue == 3) {
+                this.titleLanguage = {
+                    "titleHeader": "ログイン",
+                    "title_email": "メール",
+                    "title_password": "パスワード",
+                    "enter_email": "メールを入力してください...",
+                    "enter_password": "パスワードを入力してください...",
+                    "login": "ログイン"
+                }
+            }
+        },
         login() {
             const loading = ElLoading.service({
                 lock: true,

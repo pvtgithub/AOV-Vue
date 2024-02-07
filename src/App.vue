@@ -1,12 +1,12 @@
 <template>
   <div :class="['container_app', { dark__mode: darkMode }]">
-    <header>
+    <header class="main_header">
       <HeaderIntruction @darkMode="handleDarkMode" />
     </header>
-    <main>
+    <main class="main_main">
       <router-view />
     </main>
-    <footer>
+    <footer class="main_footer">
       <FooterComponent />
     </footer>
   </div>
@@ -98,25 +98,27 @@ nav a {
   font-weight: bold;
   color: #2c3e50;
 }
-.container_app{
-  height: 100vh;
-}
+
 .dark__mode {
   background-color: #191e22;
   animation-name: gradually;
   animation-duration: 0.3s;
 }
 
-header {
-  height: 17%;
+.main_header {
+  height: 170px;
 }
 
-main {
-  height: 73%;
+.main_main{
+  height: 1200px;
 }
 
-footer {
+.main_footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
   height: 10%
+  
 }
 
 .dark__mode footer {

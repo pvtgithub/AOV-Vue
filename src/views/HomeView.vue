@@ -11,7 +11,7 @@
         <el-input v-model="nameAuthor" :disabled="true" />
         <template #footer>
           <span class="dialog-footer">
-            <el-button type="danger" @click="dialogFormVisible = false">Cancel</el-button>
+            <el-button type="danger" @click="dialogFormVisible = false">{{ titleTable.cancel }}</el-button>
             <el-button type="primary" @click="startRandom()">
               {{ titleTable.random }}
             </el-button>
@@ -135,6 +135,7 @@ export default defineComponent({
       pageSize: 10,
       total: 0,
       nameAuthor: "",
+      languageValue: 1,
       titleTable:
       {
         "id": 'ID',
@@ -154,7 +155,9 @@ export default defineComponent({
         "deleteButton": "Xóa trận đấu",
         "titleConfirmDelete": "Bạn có muốn xóa trận đấu này?",
         "nameAuthorTitle": "Bắt đầu random?",
-        "nameAuthorPlace": "Tên người quay:  "
+        "nameAuthorPlace": "Tên người quay:  ",
+        "cancel": "Dừng lại",
+        "success_change_state": "Đã cập nhật trạng thái trận đấu!"
       },
       exceptionChampion: [],
     }
@@ -163,9 +166,6 @@ export default defineComponent({
     displayData(): any {
       if (!this.tableData || this.tableData.length === 0) return [];
       return this.tableData.slice(this.pageSize * this.page - this.pageSize, this.pageSize * this.page)
-    },
-    languageValue: function(){
-      return AllUtil.getLanguageFromStorage();
     }
   },
   methods: {
@@ -371,7 +371,7 @@ export default defineComponent({
         MatchService.updateState(id, state).then(() => {
           ElMessage({
             showClose: true,
-            message: `Đã cập nhật trạng thái trận đấu!`,
+            message: this.titleTable.success_change_state,
             type: 'success',
           })
           this.getDataMatch()
@@ -403,7 +403,9 @@ export default defineComponent({
         this.titleTable.deleteButton = "Xóa trận đấu"
         this.titleTable.titleConfirmDelete = "Bạn có muốn xóa trận đấu này?"
         this.titleTable.nameAuthorTitle = "Bắt đầu random?"
-        this.titleTable.nameAuthorPlace = "Tên người quay:  "
+        this.titleTable.nameAuthorPlace = "Tên người quay:  ",
+        this.titleTable.cancel = "Dừng lại",
+        this.titleTable.success_change_state = "Đã cập nhật trạng thái trận đấu!"
       } else if (this.languageValue == 2) {
         this.titleTable.date = "Date"
         this.titleTable.author = "Author"
@@ -421,7 +423,9 @@ export default defineComponent({
         this.titleTable.deleteButton = "Delete"
         this.titleTable.titleConfirmDelete = "Are you sure you want to delete match?"
         this.titleTable.nameAuthorTitle = "Start random match?"
-        this.titleTable.nameAuthorPlace = "Input author name:"
+        this.titleTable.nameAuthorPlace = "Input author name:",
+        this.titleTable.cancel = "Cancel",
+        this.titleTable.success_change_state = "Updated match successfuly!"
       } else if (this.languageValue == 3) {
         this.titleTable.date = "日"
         this.titleTable.author = "著者"
@@ -439,22 +443,33 @@ export default defineComponent({
         this.titleTable.deleteButton = "一致を削除"
         this.titleTable.titleConfirmDelete = "この一致を削除しますか?"
         this.titleTable.nameAuthorTitle = "回転を開始します?"
-        this.titleTable.nameAuthorPlace = "撮影者の名前を入力してください:"
+        this.titleTable.nameAuthorPlace = "撮影者の名前を入力してください:",
+        this.titleTable.cancel = "停止",
+        this.titleTable.success_change_state = "試合状況を更新しました！"
       }
     }
   },
   mounted() {
+    this.languageValue = store.state.language
     this.displayPhao = store.state.displayPhao
     store.dispatch('updatePayloadUser')
     this.nameAuthor = store.state.payloadUser.name
-
     this.changeLanguage()
+
+    store.watch(
+      state => state.language,
+      newValue => {
+        this.languageValue = newValue
+        this.changeLanguage()
+      }
+    )
     store.watch(
       state => state.displayPhao,
       newValue => {
         this.displayPhao = newValue
       }
     )
+    
     this.getDataMatch()
   }
 })

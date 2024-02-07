@@ -7,7 +7,7 @@
           <el-icon class="el-icon--left">
             <CircleCloseFilled />
           </el-icon>
-          Close
+          {{ titleLanguage.close }}
         </el-button>
       </div>
     </template>
@@ -99,7 +99,10 @@ export default defineComponent({
         "champion_mid": "Tướng đường mid",
         "champion_ad": "Tướng đường ad",
         "champion_sp": "Tướng đường sp",
-        "info_position": "Thông tin vị trí:"
+        "info_position": "Thông tin vị trí:",
+        "close":"Đóng",
+        "accepted":"Xác nhận đổi đường!",
+        "non_accepted":"Xác nhận không đổi đường!"
       },
       matchDetail: {
         "champion_top": "",
@@ -175,7 +178,7 @@ export default defineComponent({
       setTimeout(() => {
         ElMessage({
           showClose: true,
-          message: change == true ? 'Xác nhận đổi đường' : 'Xác nhận không đổi đường',
+          message: change == true ? this.titleLanguage.accepted : this.titleLanguage.non_accepted,
           type: 'success',
         })
         this.isLoadingButtonChange = false
@@ -204,7 +207,10 @@ export default defineComponent({
           "champion_mid": "Tướng đường mid",
           "champion_ad": "Tướng đường ad",
           "champion_sp": "Tướng đường sp",
-          "info_position": "Thông tin vị trí:"
+          "info_position": "Thông tin vị trí:",
+          "close": "Đóng",
+          "accepted": "Xác nhận đổi đường!",
+          "non_accepted":"Xác nhận không đổi đường!"
         }
       } else if (languageValue == 2) {
         this.titleLanguage = {
@@ -223,7 +229,10 @@ export default defineComponent({
           "champion_mid": "Mid Lane Champion",
           "champion_ad": "AD Carry Champion",
           "champion_sp": "Support Champion",
-          "info_position": "Position Information:"
+          "info_position": "Position Information:",
+          "close": "Close",
+          "accepted": "Accepted change position!",
+          "non_accepted":"Non-accepted change position!"
         }
       } else if (languageValue == 3) {
         this.titleLanguage = {
@@ -242,7 +251,10 @@ export default defineComponent({
           "champion_mid": "ミッドレーンのチャンピオン",
           "champion_ad": "ADキャリーのチャンピオン",
           "champion_sp": "サポートのチャンピオン",
-          "info_position": "ポジション情報:"
+          "info_position": "ポジション情報:",
+          "close": "近い",
+          "accepted": "ルート変更の確認!",
+          "non_accepted":"ルート変更がないことを確認!"
         }
       }
     }

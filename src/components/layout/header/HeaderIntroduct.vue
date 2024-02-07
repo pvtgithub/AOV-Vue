@@ -71,7 +71,7 @@
                             <el-icon>
                                 <Avatar />
                             </el-icon>
-                            {{ titleLaguage.avatar }}
+                            {{ email_user }}
                         </el-button>
                     </template>
                 </div>
@@ -107,7 +107,7 @@ export default defineComponent({
                 { "id": 3, "name": "Japanese" }
             ],
             languageValue: 1 as any,
-            checkJwt: store.state.checkJwt
+            checkJwt: store.state.checkJwt,
         }
     },
     methods: {
@@ -163,15 +163,20 @@ export default defineComponent({
     },
     watch: {
         languageValue: function (newData) {
+            store.commit('changeLanguage', newData)
             localStorage.setItem('customLanguage', newData)
             this.languageValue = AllUtil.getLanguageFromStorage()
             this.changeLanguage(newData)
         }
     },
+    computed: {
+        email_user() {
+            return store.state.payloadUser.email;
+        }
+    },
     mounted() {
-        this.languageValue = store.state.language
+        this.languageValue = AllUtil.getLanguageFromStorage()
         this.checkJwt = store.state.checkJwt
-
         store.watch(
             state => state.checkJwt,
             newValue => {
