@@ -78,32 +78,13 @@ import MatchService from '@/service/MatchService'
 import store from '@/store/LanguageStore'
 import { ElMessage } from 'element-plus'
 import { AllUtil } from '@/utils/allUtil'
+import { AppConstants } from '@/app-const'
 
 export default defineComponent({
   name: "MatchDetail",
   data() {
     return {
-      titleLanguage: {
-        "titleHeader": "Tướng đường và vị trí ngày:",
-        "rank_1": "Hạng 1:",
-        "rank_2": "Hạng 2:",
-        "rank_3": "Hạng 3:",
-        "rank_4": "Hạng 4:",
-        "rank_5": "Hạng 5:",
-        "championInfo": "Thông tin tướng",
-        "question": "Hạng 5 có muốn đổi vị trí với hạng 1 không?",
-        "answer1": "Không đổi",
-        "answer2": "Đổi",
-        "champion_top": "Tướng đường top",
-        "champion_jungle": "Tướng đường rừng",
-        "champion_mid": "Tướng đường mid",
-        "champion_ad": "Tướng đường ad",
-        "champion_sp": "Tướng đường sp",
-        "info_position": "Thông tin vị trí:",
-        "close":"Đóng",
-        "accepted":"Xác nhận đổi đường!",
-        "non_accepted":"Xác nhận không đổi đường!"
-      },
+      titleLanguage: {} as any,
       matchDetail: {
         "champion_top": "",
         "champion_jungle": "",
@@ -191,71 +172,11 @@ export default defineComponent({
     },
     changeLanguage(languageValue: number) {
       if (languageValue == 1) {
-        this.titleLanguage = {
-          "titleHeader": "Tướng đường và vị trí ngày:",
-          "rank_1": "Hạng 1:",
-          "rank_2": "Hạng 2:",
-          "rank_3": "Hạng 3:",
-          "rank_4": "Hạng 4:",
-          "rank_5": "Hạng 5:",
-          "championInfo": "Thông tin tướng",
-          "question": "Hạng 5 có muốn đổi vị trí với hạng 1 không?",
-          "answer1": "Không đổi",
-          "answer2": "Đổi",
-          "champion_top": "Tướng đường top",
-          "champion_jungle": "Tướng đường rừng",
-          "champion_mid": "Tướng đường mid",
-          "champion_ad": "Tướng đường ad",
-          "champion_sp": "Tướng đường sp",
-          "info_position": "Thông tin vị trí:",
-          "close": "Đóng",
-          "accepted": "Xác nhận đổi đường!",
-          "non_accepted":"Xác nhận không đổi đường!"
-        }
+        this.titleLanguage = AppConstants.languageMatchDetailVi
       } else if (languageValue == 2) {
-        this.titleLanguage = {
-          "titleHeader": "Champion and Position of the Day:",
-          "rank_1": "Rank 1:",
-          "rank_2": "Rank 2:",
-          "rank_3": "Rank 3:",
-          "rank_4": "Rank 4:",
-          "rank_5": "Rank 5:",
-          "championInfo": "Champion Information",
-          "question": "Does Rank 5 want to switch positions with Rank 1?",
-          "answer1": "No",
-          "answer2": "Yes",
-          "champion_top": "Top Lane Champion",
-          "champion_jungle": "Jungle Champion",
-          "champion_mid": "Mid Lane Champion",
-          "champion_ad": "AD Carry Champion",
-          "champion_sp": "Support Champion",
-          "info_position": "Position Information:",
-          "close": "Close",
-          "accepted": "Accepted change position!",
-          "non_accepted":"Non-accepted change position!"
-        }
+        this.titleLanguage = AppConstants.languageMatchDetailEn
       } else if (languageValue == 3) {
-        this.titleLanguage = {
-          "titleHeader": "今日のチャンピオンとポジション:",
-          "rank_1": "ランク1：",
-          "rank_2": "ランク2：",
-          "rank_3": "ランク3：",
-          "rank_4": "ランク4：",
-          "rank_5": "ランク5：",
-          "championInfo": "チャンピオン情報",
-          "question": "ランク5はランク1とポジションを交換しますか？",
-          "answer1": "いいえ",
-          "answer2": "はい",
-          "champion_top": "トップレーンのチャンピオン",
-          "champion_jungle": "ジャングルのチャンピオン",
-          "champion_mid": "ミッドレーンのチャンピオン",
-          "champion_ad": "ADキャリーのチャンピオン",
-          "champion_sp": "サポートのチャンピオン",
-          "info_position": "ポジション情報:",
-          "close": "近い",
-          "accepted": "ルート変更の確認!",
-          "non_accepted":"ルート変更がないことを確認!"
-        }
+        this.titleLanguage = AppConstants.languageMatchDetailJp
       }
     }
   }

@@ -36,7 +36,6 @@ export default defineComponent({
     store.watch(
      state => state.darkMode,
      newValue => {
-      console.log(newValue);
       this.darkMode = newValue
      }
     )

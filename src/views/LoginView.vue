@@ -25,6 +25,7 @@ import { AuthenticateUtil } from "@/utils/auth"
 import router from "@/router"
 import { ElLoading, ElMessage } from "element-plus"
 import store from "@/store/LanguageStore"
+import { AppConstants } from "@/app-const"
 
 export default defineComponent({
     name: "LoginView",
@@ -33,15 +34,7 @@ export default defineComponent({
             email: "",
             password: "",
             languageValue: 1,
-            titleLanguage: {
-                "titleHeader": "Đăng nhập",
-                "title_email": "Email",
-                "title_password": "Mật khẩu",
-                "enter_email": "Nhập email của bạn...",
-                "enter_password": "Nhập mật khẩu của bạn...",
-                "login": "Đăng nhập",
-                "login_error": "Email hoặc mật khẩu không chính xác!"
-            }
+            titleLanguage: {} as any
         }
     },
     mounted() {
@@ -58,41 +51,17 @@ export default defineComponent({
     methods: {
         changeLanguage() {
             if (this.languageValue == 1) {
-                this.titleLanguage = {
-                    "titleHeader": "Đăng nhập",
-                    "title_email": "Email",
-                    "title_password": "Mật khẩu",
-                    "enter_email": "Nhập email của bạn...",
-                    "enter_password": "Nhập mật khẩu của bạn...",
-                    "login": "Đăng nhập",
-                    "login_error": "Email hoặc mật khẩu không chính xác!"
-                }
-            } else if (this.languageValue == 2) {
-                this.titleLanguage = {
-                    "titleHeader": "Login",
-                    "title_email": "Email",
-                    "title_password": "Password",
-                    "enter_email": "Enter your email...",
-                    "enter_password": "Enter your password...",
-                    "login": "Login",
-                    "login_error": "Email or password is incorrect!"
-                }
-            } else if (this.languageValue == 3) {
-                this.titleLanguage = {
-                    "titleHeader": "ログイン",
-                    "title_email": "メール",
-                    "title_password": "パスワード",
-                    "enter_email": "メールを入力してください...",
-                    "enter_password": "パスワードを入力してください...",
-                    "login": "ログイン",
-                    "login_error": "メールアドレスまたはパスワードが間違っています!"
-                }
+                this.titleLanguage = AppConstants.languageLoginVi
+            } if (this.languageValue == 2) {
+                this.titleLanguage = AppConstants.languageLoginEn
+            } if (this.languageValue == 3) {
+                this.titleLanguage = AppConstants.languageLoginJp
             }
         },
         login() {
             const loading = ElLoading.service({
                 lock: true,
-                text: 'Loading',
+                text: this.titleLanguage.loading,
                 background: 'rgba(0, 0, 0, 0.7)',
             })
             setTimeout(() => {

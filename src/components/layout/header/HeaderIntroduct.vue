@@ -19,9 +19,9 @@
                 </div>
                 <div>
                     <router-link class="item" to="/a">
-                            <el-icon>
-                                <Phone />
-                            </el-icon>
+                        <el-icon>
+                            <Phone />
+                        </el-icon>
                     </router-link>
                     <router-link class="item" to="/a">
                         <el-icon>
@@ -51,13 +51,13 @@
                             <el-icon>
                                 <User />
                             </el-icon>
-                            {{ titleLaguage.login }}
+                            {{ titleLanguage.login }}
                         </el-button>
                         <el-button @click="register()">
                             <el-icon>
                                 <EditPen />
                             </el-icon>
-                            {{ titleLaguage.register }}
+                            {{ titleLanguage.register }}
                         </el-button>
                     </template>
                     <template v-if="checkJwt">
@@ -65,7 +65,7 @@
                             <el-icon>
                                 <Refresh />
                             </el-icon>
-                            {{ titleLaguage.logout }}
+                            {{ titleLanguage.logout }}
                         </el-button>
                         <el-button @click="avatar()">
                             <el-icon>
@@ -85,8 +85,9 @@ import { AuthenticateUtil } from '@/utils/auth'
 import store from '../../../store/LanguageStore'
 import { defineComponent } from 'vue'
 import router from '@/router'
-import { ElLoading } from 'element-plus'
+import { ElLoading, ElMessage } from 'element-plus'
 import { AllUtil } from '@/utils/allUtil'
+import { AppConstants } from '@/app-const'
 export default defineComponent({
     name: 'HeaderIntruction',
     data() {
@@ -94,12 +95,7 @@ export default defineComponent({
             headerVi: { "id": 1, "title": "CLB LIÊN QUÂN", "link": "/", "logo": "https://luvina.net/public/media//logo-luvina-2022-2.png" },
             headerEn: { "id": 2, "title": "ARENA OF VALOR CLUB", "link": "/", "logo": "https://luvina.net/public/media//logo-luvina-2022-2.png" },
             headerJp: { "id": 3, "title": "モバイル連合クラブ", "link": "/", "logo": "https://luvina.net/public/media//logo-luvina-2022-2.png" },
-            titleLaguage: {
-                logout: "Đăng xuất",
-                login: "Đăng nhập",
-                register: "Đăng ký",
-                avatar: "Xem hồ sơ"
-            },
+            titleLanguage: {} as any,
             darkMode: false,
             languages: [
                 { "id": 1, "name": "Tiếng Việt" },
@@ -114,31 +110,26 @@ export default defineComponent({
         changeMode() {
             this.darkMode = !this.darkMode
             store.commit('changeDarkMode', this.darkMode)
-            localStorage.setItem('darkMode',this.darkMode.toString())            
+            localStorage.setItem('darkMode', this.darkMode.toString())
         },
-        changeLanguage(newData: number) {
-            if (newData == 1) {
-                this.titleLaguage.logout = "Đăng xuất"
-                this.titleLaguage.login = "Đăng nhập"
-                this.titleLaguage.register = "Đăng ký"
-                this.titleLaguage.avatar = "Xem hồ sơ"
-            } if (newData == 2) {
-                this.titleLaguage.logout = "Logout"
-                this.titleLaguage.login = "Login"
-                this.titleLaguage.register = "Register"
-                this.titleLaguage.avatar = "View profile"
-            } if (newData == 3) {
-                this.titleLaguage.logout = "ログアウト"
-                this.titleLaguage.login = "ログイン"
-                this.titleLaguage.register = "登録する"
-                this.titleLaguage.avatar = "プロフィールを見る"
+        changeLanguage() {
+            if (this.languageValue == 1) {
+                this.titleLanguage = AppConstants.languageHeaderVi
+            } if (this.languageValue == 2) {
+                this.titleLanguage = AppConstants.languageHeaderEn
+            } if (this.languageValue == 3) {
+                this.titleLanguage = AppConstants.languageHeaderJp
             }
         },
         login() {
             router.push('/login')
         },
         register() {
-            console.log("no thing!!!");
+            ElMessage({
+                showClose: true,
+                message: this.titleLanguage.registerMessage,
+                type: 'warning',
+            })
         },
         avatar() {
             console.log("no thing!!!");
@@ -146,7 +137,7 @@ export default defineComponent({
         logout() {
             const loading = ElLoading.service({
                 lock: true,
-                text: 'Loading',
+                text: this.titleLanguage.loading,
                 background: 'rgba(0, 0, 0, 0.7)',
             })
             setTimeout(() => {
@@ -167,7 +158,7 @@ export default defineComponent({
             store.commit('changeLanguage', newData)
             localStorage.setItem('customLanguage', newData)
             this.languageValue = AllUtil.getLanguageFromStorage()
-            this.changeLanguage(newData)
+            this.changeLanguage()
         }
     },
     computed: {
@@ -185,8 +176,9 @@ export default defineComponent({
                 this.checkJwt = newValue
             }
         )
+        this.changeLanguage()
     },
-    
+
 })
 </script>
 <style lang="css">

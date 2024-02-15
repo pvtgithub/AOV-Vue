@@ -30,6 +30,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import store from '@/store/LanguageStore'
+import { AppConstants } from '@/app-const'
 
 
 export default defineComponent({
@@ -37,9 +38,9 @@ export default defineComponent({
     data() {
         return {
             languageValue: 1,
-            contentBottomVi: "Copyright © 2024 Luvina. Ghi rõ nguồn 'luvina.net' khi sử dụng thông tin từ website này",
-            contentBottomEn: "Copyright © 2024 PAINTING SALE. Specify the source 'luvina.net' when using information from this website",
-            contentBottomJp: "Copyright © 2024 絵画販売.このウェブサイトの情報を使用する場合は、出典「luvina.net」を指定してください",
+            contentBottomVi: AppConstants.languageFooterVi.contentBottom,
+            contentBottomEn: AppConstants.languageFooterEn.contentBottom,
+            contentBottomJp: AppConstants.languageFooterJp.contentBottom,
         }
     },
     mounted() {

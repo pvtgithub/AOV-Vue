@@ -3,62 +3,64 @@
     <el-col :span="4"></el-col>
     <el-col :span="16">
       <el-button @click="dialogFormVisible = true" type="primary">
-        {{ titleTable.random }}
+        {{ titleLanguage.random }}
       </el-button>
 
-      <el-dialog v-model="dialogFormVisible" :title="titleTable.nameAuthorTitle" width="500">
-        <p>{{ titleTable.nameAuthorPlace }}</p>
+      <el-dialog v-model="dialogFormVisible" :title="titleLanguage.nameAuthorTitle" width="500">
+        <p>{{ titleLanguage.nameAuthorPlace }}</p>
         <el-input v-model="nameAuthor" :disabled="true" />
         <template #footer>
           <span class="dialog-footer">
-            <el-button type="danger" @click="dialogFormVisible = false">{{ titleTable.cancel }}</el-button>
+            <el-button type="danger" @click="dialogFormVisible = false">{{ titleLanguage.cancel }}</el-button>
             <el-button type="primary" @click="startRandom()">
-              {{ titleTable.random }}
+              {{ titleLanguage.random }}
             </el-button>
           </span>
         </template>
       </el-dialog>
       <el-table ref="tableRef" row-key="id" :data="displayData" style="width: 100%">
         <el-table-column prop="id" label="ID" width="170" />
-        <el-table-column prop="date" :label="titleTable.date" sortable width="220" column-key="date" />
-        <el-table-column prop="author" :label="titleTable.author" width="170" />
-        <el-table-column prop="result" :label="titleTable.state" width="170" :filters="[
-          { text: titleTable.win, value: 1 },
-          { text: titleTable.lost, value: 2 },
-          { text: titleTable.happening, value: 3 },
-          { text: titleTable.not_happening, value: 4 },
+        <el-table-column prop="date" :label="titleLanguage.date" sortable width="220" column-key="date" />
+        <el-table-column prop="author" :label="titleLanguage.author" width="170" />
+        <el-table-column prop="result" :label="titleLanguage.state" width="170" :filters="[
+          { text: titleLanguage.win, value: 1 },
+          { text: titleLanguage.lost, value: 2 },
+          { text: titleLanguage.happening, value: 3 },
+          { text: titleLanguage.not_happening, value: 4 },
         ]" :filter-method="filterTag" filter-placement="bottom-end">
           <template #default="scope">
             <el-tag class="cur_poiter" @click="changeState(scope.row.result, scope.row.id)" v-if="scope.row.result == 1"
-              :type="'success'" disable-transitions>{{ titleTable.win }}</el-tag>
+              :type="'success'" disable-transitions>{{ titleLanguage.win }}</el-tag>
             <el-tag class="cur_poiter" @click="changeState(scope.row.result, scope.row.id)" v-if="scope.row.result == 2"
-              :type="'danger'" disable-transitions>{{ titleTable.lost }}</el-tag>
+              :type="'danger'" disable-transitions>{{ titleLanguage.lost }}</el-tag>
             <el-tag class="cur_poiter" @click="changeState(scope.row.result, scope.row.id)" v-if="scope.row.result == 3"
-              :type="''" disable-transitions>{{ titleTable.happening }}</el-tag>
+              :type="''" disable-transitions>{{ titleLanguage.happening }}</el-tag>
             <el-tag class="cur_poiter" @click="changeState(scope.row.result, scope.row.id)" v-if="scope.row.result == 4"
-              :type="'warning'" disable-transitions>{{ titleTable.not_happening
+              :type="'warning'" disable-transitions>{{ titleLanguage.not_happening
               }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="changePosition" :label="titleTable.change" width="170">
+        <el-table-column prop="changePosition" :label="titleLanguage.change" width="170">
           <template #default="scope">
-            <el-tag v-if="scope.row.changePosition == true" :type="'success'" disable-transitions>{{ titleTable.have_change }}</el-tag>
-            <el-tag v-if="scope.row.changePosition == false" :type="'danger'" disable-transitions>{{ titleTable.no_change }}</el-tag>
+            <el-tag v-if="scope.row.changePosition == true" :type="'success'" disable-transitions>{{
+              titleLanguage.have_change }}</el-tag>
+            <el-tag v-if="scope.row.changePosition == false" :type="'danger'" disable-transitions>{{ titleLanguage.no_change
+            }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column :label="titleTable.option" #default="scope">
+        <el-table-column :label="titleLanguage.option" #default="scope">
           <el-button @click="getMatchById(scope.row.id, 1, true)">
             <el-icon>
               <View />
-            </el-icon>{{ titleTable.detailButton }}
+            </el-icon>{{ titleLanguage.detailButton }}
           </el-button>
-          <el-popconfirm :title="titleTable.titleConfirmDelete" @confirm="deleteMatchById(scope.row.id)"
+          <el-popconfirm :title="titleLanguage.titleConfirmDelete" @confirm="deleteMatchById(scope.row.id)"
             @cancel="cancelEvent">
             <template #reference>
               <el-button type="danger">
                 <el-icon>
                   <Delete />
-                </el-icon>{{ titleTable.deleteButton }}
+                </el-icon>{{ titleLanguage.deleteButton }}
               </el-button>
             </template>
           </el-popconfirm>
@@ -76,7 +78,7 @@
         <div class="before"></div>
         <div class="after"></div>
       </div>
-      <MatchDetail @getMatchAgain="getDataMatch()" ref="runHandle" :id="idDetail" :languageValue="languageValue"/>
+      <MatchDetail @getMatchAgain="getDataMatch()" ref="runHandle" :id="idDetail" :languageValue="languageValue" />
     </el-col>
     <el-col :span="4"></el-col>
   </el-row>
@@ -91,6 +93,7 @@ import { ElMessage, ElLoading, type TableInstance } from 'element-plus'
 import MatchDetail from '@/components/home/MatchDetail.vue'
 import store from '@/store/LanguageStore'
 import { AllUtil } from '@/utils/allUtil'
+import { AppConstants } from '@/app-const'
 
 interface Match {
   id: number
@@ -136,29 +139,7 @@ export default defineComponent({
       total: 0,
       nameAuthor: "",
       languageValue: 1,
-      titleTable:
-      {
-        "id": 'ID',
-        "date": "Ngày",
-        "author": "Tác giả",
-        "state": "Trạng thái",
-        "change" : "Đổi đường",
-        "option": "Lựa chọn",
-        "random": "Bắt đầu quay tướng",
-        "win": "Thắng",
-        "lost": "Thua",
-        "happening": "Đang đấu",
-        "not_happening": "Chưa diễn ra",
-        "have_change" : "Có đổi đường",
-        "no_change" : "Không đổi đường",
-        "detailButton": "Xem chi tiết",
-        "deleteButton": "Xóa trận đấu",
-        "titleConfirmDelete": "Bạn có muốn xóa trận đấu này?",
-        "nameAuthorTitle": "Bắt đầu random?",
-        "nameAuthorPlace": "Tên người quay:  ",
-        "cancel": "Dừng lại",
-        "success_change_state": "Đã cập nhật trạng thái trận đấu!"
-      },
+      titleLanguage:{} as any,
       exceptionChampion: [],
     }
   },
@@ -205,7 +186,7 @@ export default defineComponent({
       await MatchService.deleteMatchById(id)
       ElMessage({
         showClose: true,
-        message: `Đã xóa trận đấu ${id} !`,
+        message: `${this.titleLanguage.deleted} ${id} !`,
         type: 'success',
       })
       this.getDataMatch()
@@ -222,7 +203,7 @@ export default defineComponent({
       }
       const loading = ElLoading.service({
         lock: true,
-        text: 'Loading',
+        text: this.titleLanguage.loading,
         background: 'rgba(0, 0, 0, 0.7)',
       })
       setTimeout(() => {
@@ -251,7 +232,7 @@ export default defineComponent({
                   matchRandom.champion_sp = res
                   this.postMatch(matchRandom).then((res) => {
                     console.log(matchRandom.champion_top);
-                    
+
                     this.getDataMatch()
                     this.getMatchById(res.id, 1, false)
                     this.nameAuthor = store.state.payloadUser.name
@@ -359,7 +340,7 @@ export default defineComponent({
     changeState(state: number, id: number) {
       const loading = ElLoading.service({
         lock: true,
-        text: 'Loading',
+        text: this.titleLanguage.loading,
         background: 'rgba(0, 0, 0, 0.7)',
       })
       setTimeout(() => {
@@ -371,7 +352,7 @@ export default defineComponent({
         MatchService.updateState(id, state).then(() => {
           ElMessage({
             showClose: true,
-            message: this.titleTable.success_change_state,
+            message: this.titleLanguage.success_change_state,
             type: 'success',
           })
           this.getDataMatch()
@@ -387,65 +368,11 @@ export default defineComponent({
     },
     changeLanguage() {
       if (this.languageValue == 1) {
-        this.titleTable.date = "Ngày quay"
-        this.titleTable.author = "Người quay"
-        this.titleTable.state = "Trạng thái"
-        this.titleTable.change = "Đổi đường"
-        this.titleTable.option = "Lựa chọn"
-        this.titleTable.random = "Bắt đầu quay tướng"
-        this.titleTable.win = "Thắng"
-        this.titleTable.lost = "Thua"
-        this.titleTable.happening = "Đang đấu"
-        this.titleTable.not_happening = "Chưa diễn ra"
-        this.titleTable.have_change = "Có đổi đường"
-        this.titleTable.no_change = "Không đổi đường"
-        this.titleTable.detailButton = "Xem chi tiết"
-        this.titleTable.deleteButton = "Xóa trận đấu"
-        this.titleTable.titleConfirmDelete = "Bạn có muốn xóa trận đấu này?"
-        this.titleTable.nameAuthorTitle = "Bắt đầu random?"
-        this.titleTable.nameAuthorPlace = "Tên người quay:  ",
-        this.titleTable.cancel = "Dừng lại",
-        this.titleTable.success_change_state = "Đã cập nhật trạng thái trận đấu!"
-      } else if (this.languageValue == 2) {
-        this.titleTable.date = "Date"
-        this.titleTable.author = "Author"
-        this.titleTable.state = "State"
-        this.titleTable.change = "Change Position"
-        this.titleTable.option = "Option"
-        this.titleTable.random = "Random"
-        this.titleTable.win = "Win"
-        this.titleTable.lost = "Lost"
-        this.titleTable.happening = "Happening"
-        this.titleTable.not_happening = "Has't happening yet"
-        this.titleTable.have_change = "Changed"
-        this.titleTable.no_change = "Not changing"
-        this.titleTable.detailButton = "Detail"
-        this.titleTable.deleteButton = "Delete"
-        this.titleTable.titleConfirmDelete = "Are you sure you want to delete match?"
-        this.titleTable.nameAuthorTitle = "Start random match?"
-        this.titleTable.nameAuthorPlace = "Input author name:",
-        this.titleTable.cancel = "Cancel",
-        this.titleTable.success_change_state = "Updated match successfuly!"
-      } else if (this.languageValue == 3) {
-        this.titleTable.date = "日"
-        this.titleTable.author = "著者"
-        this.titleTable.state = "状態"
-        this.titleTable.change = "ルート変更"
-        this.titleTable.option = "選択する"
-        this.titleTable.random = "振り向く"
-        this.titleTable.win = "勝つ"
-        this.titleTable.lost = "失う"
-        this.titleTable.happening = "起こっている"
-        this.titleTable.not_happening = "まだ起こっていない"
-        this.titleTable.have_change = "ルート変更あり"
-        this.titleTable.no_change = "変更なし"
-        this.titleTable.detailButton = "詳細を見る"
-        this.titleTable.deleteButton = "一致を削除"
-        this.titleTable.titleConfirmDelete = "この一致を削除しますか?"
-        this.titleTable.nameAuthorTitle = "回転を開始します?"
-        this.titleTable.nameAuthorPlace = "撮影者の名前を入力してください:",
-        this.titleTable.cancel = "停止",
-        this.titleTable.success_change_state = "試合状況を更新しました！"
+        this.titleLanguage = AppConstants.languageHomeVi
+      } if (this.languageValue == 2) {
+        this.titleLanguage = AppConstants.languageHomeEn
+      } if (this.languageValue == 3) {
+        this.titleLanguage = AppConstants.languageHomeJp
       }
     }
   },
@@ -469,7 +396,7 @@ export default defineComponent({
         this.displayPhao = newValue
       }
     )
-    
+
     this.getDataMatch()
   }
 })
@@ -496,7 +423,7 @@ export default defineComponent({
   position: fixed;
   top: 220px;
   left: 50%;
-  z-index: 2044;
+  z-index: 3000;
 }
 
 .pyro>.before,
